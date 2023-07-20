@@ -20,11 +20,14 @@ using static FireBird.Data.Lectura_Basededatos;
 using DocumentFormat.OpenXml.Drawing;
 using Rectangle = System.Drawing.Rectangle;
 using System.Runtime.InteropServices;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Font = System.Drawing.Font;
 
 namespace FireBird
 {
     public partial class Form1 : Form
     {
+        DateTime fechaActual = DateTime.Now;
         Cenefa FormularioCenefa;
         string columnadescripcion;
         string columnacliente;
@@ -37,13 +40,18 @@ namespace FireBird
         string oficial_empacador;
         string oficial_cliente;
         string oficial_factura;
-        string oficial_importe;
+        decimal oficial_importe;
+        string Current_Surtidor;
+        int Current_Bultos;
+        string path;
         int contador = 0;
+        bool Pv = false;
         private List<string> nombres = new() { };
 
         public Form1()
         {
             InitializeComponent();
+            CrearExcel();
             Leer_Datos();
             Cb_Empacador.SelectedIndex = -1;
             FormularioCenefa = new Cenefa();
@@ -60,6 +68,137 @@ namespace FireBird
             Cb_Empacador.AutoCompleteSource = AutoCompleteSource.CustomSource;
             Cb_Empacador.AutoCompleteCustomSource.AddRange(nombres.ToArray());
             Cb_Empacador.Text = "";
+        }
+        public void CrearExcel()
+        {
+            DateTime actual = DateTime.Now;
+            if (actual.DayOfWeek.ToString() == "Thursday")
+            {
+                path = "C:\\Datos_Surtido\\Registro de Empacadores" + DateTime.Now.ToString(" yyyy-MM-dd") + " a" + actual.AddDays(6).ToString(" yyyy-MM-dd") + ".xlsx";
+            }
+            else
+            {
+                int contador = 0;
+                int valor_dia = (int)actual.DayOfWeek;
+                for (; valor_dia >= 0; --valor_dia)
+                {
+                    contador++;
+                    if (valor_dia <= 3 && valor_dia == 0)
+                    {
+                        contador += 2;
+                        DateTime pasada = fechaActual.AddDays(-contador);
+                        path = "C:\\Datos_Surtido\\Registro de Empacadores" + pasada.ToString(" yyyy-MM-dd") + " a" + pasada.AddDays(6).ToString(" yyyy-MM-dd") + ".xlsx";
+                        break;
+                    }
+                    if (valor_dia > 4)
+                    {
+                        if (valor_dia == 5)
+                        {
+                            DateTime pasada = fechaActual.AddDays(-contador);
+                            path = "C:\\Datos_Surtido\\Registro de Empacadores" + pasada.ToString(" yyyy-MM-dd") + " a" + pasada.AddDays(6).ToString(" yyyy-MM-dd") + ".xlsx";
+                            break;
+                        }
+                        if (valor_dia == 6)
+                        {
+                            contador += 1;
+                            DateTime pasada = fechaActual.AddDays(-contador);
+                            path = "C:\\Datos_Surtido\\Registro de Empacadores" + pasada.ToString(" yyyy-MM-dd") + " a" + pasada.AddDays(6).ToString(" yyyy-MM-dd") + ".xlsx";
+                            break;
+                        }
+                        if (valor_dia == 7)
+                        {
+                            contador += 2;
+                            DateTime pasada = fechaActual.AddDays(-contador);
+                            path = "C:\\Datos_Surtido\\Registro de Empacadores" + pasada.ToString(" yyyy-MM-dd") + " a" + pasada.AddDays(6).ToString(" yyyy-MM-dd") + ".xlsx";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        void Promedio()
+        {
+            SLDocument sl = new SLDocument(path);
+            // Agregar una nueva hoja
+            sl.AddWorksheet("Promedio");
+            sl.SelectWorksheet("Promedio");
+            int[] columnas = { 1, 2, 3, 4, 5, 6, 7 , 8 };
+            foreach (int columna in columnas)
+            {
+                sl.SetColumnWidth(columna, 30);
+            }
+            sl.SetCellValue("A1", "SURTIDOR");
+            sl.SetCellValue("B1", "PEDIDOS EMPACADOS");
+            sl.SetCellValue("C1", "IMPORTE GENERADO");
+            sl.SetCellValue("D1", "BULTOS EMPACADOS");
+            sl.SetCellValue("E1", "TOTAL DE PEDIDOS");
+            sl.SetCellValue("F1", "TOTAL DE IMPORTE");
+            sl.SetCellValue("G1", "PORCENTAJE DE PEDIDOS");
+            sl.SetCellValue("H1", "PORCENTAJE DE IMPORTE");
+            int i = 2;
+            int j = 2;
+            bool Encontrar = false;
+            while (sl.HasCellValue("A" + i))
+            {
+                if (sl.GetCellValueAsString(i, 1) == Current_Surtidor)
+                {
+                    Encontrar = true;
+                    decimal imp = sl.GetCellValueAsDecimal("C" + i);
+                    decimal total1 = sl.GetCellValueAsInt32("E2");
+                    decimal total2 = sl.GetCellValueAsDecimal("F2");
+                    decimal pedidos = sl.GetCellValueAsDecimal("B" + i);
+                    int blt = sl.GetCellValueAsInt32("D" + i);
+                    sl.SetCellValue("B" + i, pedidos + 1);
+                    sl.SetCellValue("C" + i, oficial_importe + imp);
+                    sl.SetCellValue("D" + i, Current_Bultos + blt);
+                    sl.SetCellValue("E2", 1 + total1);
+                    sl.SetCellValue("F2", total2 + oficial_importe);
+                    total1 = sl.GetCellValueAsDecimal("E2");
+                    total2 = sl.GetCellValueAsDecimal("F2");
+
+                    while (sl.HasCellValue("B" + j))
+                    {
+                        decimal temp_pedidos = sl.GetCellValueAsDecimal("B" + j);
+                        sl.SetCellValue("G" + j, 100 * (temp_pedidos / total1));
+                        decimal temp_importe = sl.GetCellValueAsDecimal("C" + j);
+                        sl.SetCellValue("H" + j, 100 * (temp_importe / total2));
+                        j++;
+                    }
+                }
+                i++;
+            }
+            if (Encontrar == false)
+            {
+                decimal total1 = sl.GetCellValueAsDecimal("E2");
+                decimal total2 = sl.GetCellValueAsDecimal("F2");
+                sl.SetCellValue("A" + i, Current_Surtidor);
+                sl.SetCellValue("B" + i, 1);
+                sl.SetCellValue("C" + i, oficial_importe);
+                int renglones = sl.GetCellValueAsInt32("F" + i);
+                sl.SetCellValue("D" + i, Current_Bultos);
+                sl.SetCellValue("E2", total1 + 1);
+                sl.SetCellValue("F2", total2 + oficial_importe);
+                total2 = sl.GetCellValueAsDecimal("F2");
+                total1 = sl.GetCellValueAsDecimal("E2");
+                while (sl.HasCellValue("C" + j))
+                {
+                    decimal temp_pedidos = sl.GetCellValueAsDecimal("B" + j);
+                    sl.SetCellValue("G" + j, 100 * (temp_pedidos / total1));
+                    decimal temp_importe = sl.GetCellValueAsDecimal("C" + j);
+                    sl.SetCellValue("H" + j, 100 * (temp_importe / total2));
+                    j++;
+
+                }
+            }
+            SLSheetProtection sp = new SLSheetProtection();
+            sp.AllowInsertRows = true;
+            sp.AllowInsertColumns = false;
+            sp.AllowFormatCells = true;
+            sp.AllowDeleteColumns = true;
+            sl.ProtectWorksheet(sp);
+            // Guardar el archivo con la nueva hoja agregada
+            sl.SaveAs(path);
+
         }
         static async Task Base(string folio, string empacador, int bultos, string hora, string fecha)
         {
@@ -109,7 +248,7 @@ namespace FireBird
             }
             using (Font font = new Font("Arial", 16, FontStyle.Bold))
             {
-                e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(180, 230));
+                e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(140, 230));
             }
             // Puedes dibujar imágenes de la misma manera:
             Image image = Image.FromFile("C:\\Datos_Surtido\\coriba.png");
@@ -173,7 +312,7 @@ namespace FireBird
         {
             if (ClientRectangle.Width > 0 && ClientRectangle.Height > 0)
             {
-                using (LinearGradientBrush brush = new LinearGradientBrush(ClientRectangle, Color.Gray, Color.Black, 90F))
+                using (LinearGradientBrush brush = new LinearGradientBrush(ClientRectangle, System.Drawing.Color.Gray, System.Drawing.Color.Black, 90F))
                 {
                     e.Graphics.FillRectangle(brush, ClientRectangle);
                 }
@@ -205,6 +344,8 @@ namespace FireBird
                     // Crear un nuevo hilo y asignarle un método que se ejecutará en paralelo
                     // Iniciar la ejecución del hilo
                     Buscar_Folio = TxtFolio.Text;
+                    Current_Surtidor = Cb_Empacador.Text;
+                    Current_Bultos = int.Parse(TxtBultos.Text);
                     con.Open();
                     if ((Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'L') || (Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'C'))
                     {
@@ -224,7 +365,7 @@ namespace FireBird
                             string columnafecha = reader0.GetString(5);
                             string fechacorta = columnafecha.Substring(0, 10);
                             columnacliente = reader0.GetString(9);
-                            string importe = reader0.GetString(23);
+                            decimal importe = reader0.GetDecimal(23);
                             //  columnadescripcion = reader0.GetString(42);
                             string columna5 = reader0.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
                             if (columna5 == Buscar_Folio)
@@ -264,12 +405,13 @@ namespace FireBird
                     else
                     {
 
-                        string query = "SELECT * FROM DOCTOS_VE WHERE (FOLIO LIKE 'PF%' OR FOLIO LIKE 'PE%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
+                        string query = "SELECT * FROM DOCTOS_VE WHERE (FOLIO LIKE 'PF%' OR FOLIO LIKE 'PE%' OR FOLIO LIKE 'PA%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
                         FbCommand command = new FbCommand(query, con);
 
                         // Objeto para leer los datos obtenidos
                         FbDataReader reader = command.ExecuteReader();
                         bool encontrado = false;
+                        Pv = true;
                         oficial_empacador = Cb_Empacador.Text;
                         oficial_bultos = int.Parse(TxtBultos.Text);
                         // Iterar sobre los registros y mostrar los valores
@@ -281,9 +423,9 @@ namespace FireBird
                             string fechacorta = columnafecha.Substring(0, 10);
                             columnacliente = reader.GetString(8);
                             columnadescripcion = reader.GetString(42);
-                            string importe = reader.GetString(26);
+                            decimal importe = reader.GetDecimal(26);
                             string columna5 = reader.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
-                            if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E'))
+                            if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'A'))
                             {
                                 break;
                             }
@@ -373,7 +515,14 @@ namespace FireBird
                 }
                 catch (Exception ex)
                 {
+                    MessageBox.Show("Se perdió la conexión :( , contacta a 06 o intenta de nuevo", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     MessageBox.Show(ex.ToString());
+                    contador = 0;
+                    TxtBultos.Text = string.Empty;
+                    TxtFolio.Text = string.Empty;
+                    Cb_Empacador.Text = string.Empty;
+                    TxtFolio.Select();
+                    return;
                 }
                 /*
                 void Codigo_Barras()
@@ -387,13 +536,14 @@ namespace FireBird
                 {
                     printDocument1.Print();
                     await Base(TxtFolio.Text, Cb_Empacador.Text, int.Parse(TxtBultos.Text), Lbhora.Text, LbFecha.Text);
-                    Excel();
+                    if(Pv == true) 
+                        Excel();
                     contador = 0;
                     TxtBultos.Text = string.Empty;
                     TxtFolio.Text = string.Empty;
                     Cb_Empacador.Text = string.Empty;
+                    Pv = false;
                     TxtFolio.Select();
-
                 }
                 else
                 {
@@ -411,17 +561,18 @@ namespace FireBird
         }
         public void Excel()
         {
-            string path = "C:\\Datos_Surtido\\Registro de Empacadores" + DateTime.Now.ToString(" yyyy-MM-dd") + ".xlsx";
+            
             bool fileExist = File.Exists(path);
             if (fileExist)
             {
-                SLDocument sl = new("C:\\Datos_Surtido\\Registro de Empacadores" + DateTime.Now.ToString(" yyyy-MM-dd") + ".xlsx", "Sheet1");
+                SLDocument sl = new(path);
+                sl.SelectWorksheet("Reporte Empaque");
                 int i = 1;
                 while (sl.HasCellValue("A" + i))
                 {
                     i++;
                 }
-                int[] columnas = { 1, 2, 3, 4, 5, 6, 7, 8, 9 , 10};
+                int[] columnas = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
                 foreach (int columna in columnas)
                 {
                     sl.SetColumnWidth(columna, 30);
@@ -444,12 +595,15 @@ namespace FireBird
                 sl.SetCellValue("H" + i, oficial_poblacion);
                 sl.SetCellValue("I" + i, oficial_ciudad);
                 sl.SetCellValue("J" + i, oficial_importe);
-                sl.SaveAs("C:\\Datos_Surtido\\Registro de Empacadores" + DateTime.Now.ToString(" yyyy-MM-dd") + ".xlsx");
+                sl.SaveAs(path);
+                Promedio();
             }
             else if (!fileExist)
             {
                 SLDocument oSLDocument = new();
                 DataTable table = new();
+                string actual = oSLDocument.GetCurrentWorksheetName();
+                oSLDocument.RenameWorksheet(actual, "Reporte Empaque");
                 table.Columns.Add("ID", typeof(int));
                 table.Columns.Add("Folio", typeof(string));
                 table.Columns.Add("Fecha", typeof(string));
@@ -459,10 +613,11 @@ namespace FireBird
                 table.Columns.Add("Cliente", typeof(string));
                 table.Columns.Add("Localidad", typeof(string));
                 table.Columns.Add("Ruta", typeof(string));
-                table.Columns.Add("Importe", typeof(string));
+                table.Columns.Add("Importe", typeof(decimal));
                 table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe);
                 oSLDocument.ImportDataTable(1, 1, table, true);
-                oSLDocument.SaveAs("C:\\Datos_Surtido\\Registro de Empacadores" + DateTime.Now.ToString(" yyyy-MM-dd") + ".xlsx");
+                oSLDocument.SaveAs(path);
+                Promedio();
             }
         }
 

@@ -105,7 +105,6 @@
             // 
             BtnVistaPrevia.Anchor = AnchorStyles.Top;
             BtnVistaPrevia.BackColor = Color.DarkOrange;
-            BtnVistaPrevia.Enabled = false;
             BtnVistaPrevia.FlatStyle = FlatStyle.Flat;
             BtnVistaPrevia.Font = new Font("Verdana", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             BtnVistaPrevia.ForeColor = Color.Black;
@@ -115,7 +114,6 @@
             BtnVistaPrevia.TabIndex = 8;
             BtnVistaPrevia.Text = "Vista Previa";
             BtnVistaPrevia.UseVisualStyleBackColor = false;
-            BtnVistaPrevia.Visible = false;
             BtnVistaPrevia.Click += BtnVistaPrevia_Click;
             // 
             // printDocument1
