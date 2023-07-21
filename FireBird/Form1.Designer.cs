@@ -114,6 +114,7 @@
             BtnVistaPrevia.TabIndex = 8;
             BtnVistaPrevia.Text = "Vista Previa";
             BtnVistaPrevia.UseVisualStyleBackColor = false;
+            BtnVistaPrevia.Visible = false;
             BtnVistaPrevia.Click += BtnVistaPrevia_Click;
             // 
             // printDocument1

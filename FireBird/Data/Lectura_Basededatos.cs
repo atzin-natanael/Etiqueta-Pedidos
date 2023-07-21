@@ -19,7 +19,7 @@ namespace FireBird.Data
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                string databasePath = "C:\\Datos_Surtido\\Surtido.db"; // Ruta personalizada hacia la base de datos SQLite
+                string databasePath = "C:\\Datos_Empaque\\Surtido.db"; // Ruta personalizada hacia la base de datos SQLite
                 if (!File.Exists(databasePath))
                 {
                     File.Create(databasePath).Close();
