@@ -22,6 +22,7 @@ using Rectangle = System.Drawing.Rectangle;
 using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Font = System.Drawing.Font;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace FireBird
 {
@@ -44,11 +45,13 @@ namespace FireBird
         string Current_Surtidor;
         int Current_Bultos;
         int Bultos_repetidos;
+        List<string> nombresArray = new();
         string path;
         int contador = 0;
         bool Existe = false;
         bool Pv = false;
-        private List<string> nombres = new() { };
+        Agregar Add;
+        private List<string> nombresValor = new() { };
 
         public Form1()
         {
@@ -57,18 +60,30 @@ namespace FireBird
             Leer_Datos();
             Cb_Empacador.SelectedIndex = -1;
             FormularioCenefa = new Cenefa();
+            Add = new Agregar();
+            Cb_Empacador.DropDownHeight = 250;
         }
         public void Leer_Datos()
         {
-            string filePath = "C:\\Datos_Empaque\\Claves.txt";
-
-            // Leer el contenido del archivo y asignarlo a una matriz de cadenas
-            string[] nombresArray = File.ReadAllLines(filePath);
-            nombres = new List<string>(nombresArray);
-            Cb_Empacador.DataSource = nombres;
-            Cb_Empacador.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            string filePath = "C:\\Datos_Empaque\\Claves.xlsx";
+            using (SLDocument documento = new SLDocument(filePath))
+            {
+                int filas = documento.GetWorksheetStatistics().NumberOfRows;
+                for (int i = 2; i < filas+1; ++i)
+                {
+                    string temp_name = documento.GetCellValueAsString("A" + i);
+                    string temp_value = documento.GetCellValueAsString("B" + i);
+                    string temp_status = documento.GetCellValueAsString("C" + i);
+                    string name = temp_name + " " + temp_value;
+                    nombresArray.Add(name);
+                    nombresValor.Add(temp_status);
+                }
+                documento.CloseWithoutSaving();
+            }
+            Cb_Empacador.DataSource = nombresArray;
+            Cb_Empacador.AutoCompleteMode = AutoCompleteMode.Append;
             Cb_Empacador.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            Cb_Empacador.AutoCompleteCustomSource.AddRange(nombres.ToArray());
+            Cb_Empacador.AutoCompleteCustomSource.AddRange(nombresArray.ToArray());
             Cb_Empacador.Text = "";
         }
         public void CrearExcel()
@@ -615,7 +630,16 @@ namespace FireBird
                 sl.SetCellValue("I" + i, oficial_ciudad);
                 sl.SetCellValue("J" + i, oficial_importe);
                 sl.SaveAs(path);
-                Promedio();
+                if (nombresArray.Contains(Cb_Empacador.Text))
+                {
+                    int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Cb_Empacador.Text));
+                    if (nombresValor[posicion] == "S")
+                    {
+                        Promedio();
+                    }
+                    else
+                        return;
+                }
             }
             else if (!fileExist)
             {
@@ -636,7 +660,17 @@ namespace FireBird
                 table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe);
                 oSLDocument.ImportDataTable(1, 1, table, true);
                 oSLDocument.SaveAs(path);
-                Promedio();
+
+                if (nombresArray.Contains(Cb_Empacador.Text))
+                {
+                    int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Cb_Empacador.Text));
+                    if (nombresValor[posicion] == "S")
+                    {
+                        Promedio();
+                    }
+                    else
+                        return;
+                }
             }
         }
 
@@ -675,6 +709,23 @@ namespace FireBird
             tooltip.SetToolTip(Cb_Empacador, "Ingresa primero tu número de empleado");
             tooltip.SetToolTip(TxtFolio, "Ingresa el folio de la factura");
             tooltip.SetToolTip(TxtBultos, "Ingresa el número de bultos");
+        }
+
+        private void Cb_Empacador_Leave(object sender, EventArgs e)
+        {
+            if (!nombresArray.Contains(Cb_Empacador.Text) && Cb_Empacador.Text != "")
+            {
+                MessageBox.Show("Ese surtidor no está registrado", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Cb_Empacador.Text = "";
+                Cb_Empacador.Focus();
+            }
+        }
+
+        private void Pb_Add_Click(object sender, EventArgs e)
+        {
+            Add.ShowDialog();
+            Leer_Datos();
+            TxtFolio.Focus();
         }
     }
 }

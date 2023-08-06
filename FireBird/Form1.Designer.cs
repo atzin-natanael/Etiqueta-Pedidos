@@ -60,6 +60,8 @@
             label3 = new Label();
             label4 = new Label();
             BtnCenefa = new Button();
+            Pb_Add = new PictureBox();
+            label5 = new Label();
             ((System.ComponentModel.ISupportInitialize)Imagen_Codigo).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -72,6 +74,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox8).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox11).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)Pb_Add).BeginInit();
             SuspendLayout();
             // 
             // TxtFolio
@@ -93,7 +96,7 @@
             // 
             // Imagen_Codigo
             // 
-            Imagen_Codigo.Location = new Point(12, 72);
+            Imagen_Codigo.Location = new Point(3, 286);
             Imagen_Codigo.Name = "Imagen_Codigo";
             Imagen_Codigo.Size = new Size(175, 65);
             Imagen_Codigo.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -189,12 +192,13 @@
             Cb_Empacador.FormattingEnabled = true;
             Cb_Empacador.ItemHeight = 23;
             Cb_Empacador.Location = new Point(408, 143);
-            Cb_Empacador.MaxDropDownItems = 1;
+            Cb_Empacador.MaxDropDownItems = 6;
             Cb_Empacador.Name = "Cb_Empacador";
             Cb_Empacador.Size = new Size(469, 31);
             Cb_Empacador.TabIndex = 2;
             Cb_Empacador.KeyDown += Cb_Empacador_KeyDown;
             Cb_Empacador.KeyPress += Cb_Empacador_KeyPress;
+            Cb_Empacador.Leave += Cb_Empacador_Leave;
             // 
             // Lbhora
             // 
@@ -442,12 +446,41 @@
             BtnCenefa.UseVisualStyleBackColor = false;
             BtnCenefa.Click += BtnCenefa_Click;
             // 
+            // Pb_Add
+            // 
+            Pb_Add.Anchor = AnchorStyles.Top;
+            Pb_Add.BackColor = Color.Transparent;
+            Pb_Add.Cursor = Cursors.Hand;
+            Pb_Add.Image = (Image)resources.GetObject("Pb_Add.Image");
+            Pb_Add.Location = new Point(12, 85);
+            Pb_Add.Name = "Pb_Add";
+            Pb_Add.Size = new Size(62, 61);
+            Pb_Add.SizeMode = PictureBoxSizeMode.StretchImage;
+            Pb_Add.TabIndex = 33;
+            Pb_Add.TabStop = false;
+            Pb_Add.Click += Pb_Add_Click;
+            // 
+            // label5
+            // 
+            label5.Anchor = AnchorStyles.Top;
+            label5.AutoSize = true;
+            label5.BackColor = Color.Transparent;
+            label5.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
+            label5.Location = new Point(3, 50);
+            label5.Name = "label5";
+            label5.Size = new Size(161, 21);
+            label5.TabIndex = 34;
+            label5.Text = "Agregar Empacador";
+            label5.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Silver;
             ClientSize = new Size(1008, 729);
+            Controls.Add(label5);
+            Controls.Add(Pb_Add);
             Controls.Add(BtnCenefa);
             Controls.Add(label4);
             Controls.Add(label3);
@@ -493,6 +526,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox8).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox11).EndInit();
+            ((System.ComponentModel.ISupportInitialize)Pb_Add).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -528,5 +562,7 @@
         private Label label3;
         private Label label4;
         private Button BtnCenefa;
+        private PictureBox Pb_Add;
+        private Label label5;
     }
 }
