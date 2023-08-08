@@ -75,7 +75,7 @@
             Txt_Nombre.Name = "Txt_Nombre";
             Txt_Nombre.PlaceholderText = "NOMBRE";
             Txt_Nombre.Size = new Size(203, 34);
-            Txt_Nombre.TabIndex = 21;
+            Txt_Nombre.TabIndex = 2;
             Txt_Nombre.TextAlign = HorizontalAlignment.Center;
             Txt_Nombre.KeyDown += Txt_Nombre_KeyDown;
             Txt_Nombre.KeyPress += Txt_Nombre_KeyPress;
@@ -90,7 +90,7 @@
             Txt_Numero.Name = "Txt_Numero";
             Txt_Numero.PlaceholderText = "NÚMERO";
             Txt_Numero.Size = new Size(163, 34);
-            Txt_Numero.TabIndex = 20;
+            Txt_Numero.TabIndex = 1;
             Txt_Numero.TextAlign = HorizontalAlignment.Center;
             Txt_Numero.KeyDown += Txt_Numero_KeyDown;
             Txt_Numero.KeyPress += Txt_Numero_KeyPress;
@@ -105,7 +105,7 @@
             Btn_Agregar.Location = new Point(319, 126);
             Btn_Agregar.Name = "Btn_Agregar";
             Btn_Agregar.Size = new Size(139, 49);
-            Btn_Agregar.TabIndex = 19;
+            Btn_Agregar.TabIndex = 5;
             Btn_Agregar.Text = "Agregar";
             Btn_Agregar.UseVisualStyleBackColor = false;
             Btn_Agregar.Click += Btn_Agregar_Click;
@@ -121,8 +121,10 @@
             Txt_Apellido.Name = "Txt_Apellido";
             Txt_Apellido.PlaceholderText = "APELLIDO";
             Txt_Apellido.Size = new Size(229, 34);
-            Txt_Apellido.TabIndex = 24;
+            Txt_Apellido.TabIndex = 3;
             Txt_Apellido.TextAlign = HorizontalAlignment.Center;
+            Txt_Apellido.KeyDown += Txt_Apellido_KeyDown;
+            Txt_Apellido.KeyPress += Txt_Apellido_KeyPress;
             // 
             // label2
             // 
@@ -147,8 +149,9 @@
             Cb_Bandera.Location = new Point(652, 62);
             Cb_Bandera.Name = "Cb_Bandera";
             Cb_Bandera.Size = new Size(96, 33);
-            Cb_Bandera.TabIndex = 26;
+            Cb_Bandera.TabIndex = 4;
             Cb_Bandera.ValueMember = "1";
+            Cb_Bandera.KeyDown += Cb_Bandera_KeyDown;
             // 
             // label4
             // 

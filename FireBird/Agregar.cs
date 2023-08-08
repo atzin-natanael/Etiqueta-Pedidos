@@ -1,4 +1,5 @@
-﻿using SpreadsheetLight;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -43,7 +44,7 @@ namespace FireBird
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
-                Btn_Agregar.Focus();
+                Txt_Apellido.Focus();
             }
         }
 
@@ -59,11 +60,22 @@ namespace FireBird
 
         private void Btn_Agregar_Click(object sender, EventArgs e)
         {
-            if (Txt_Numero.Text != string.Empty && Txt_Nombre.Text != string.Empty)
+            if (Txt_Numero.Text != string.Empty && Txt_Nombre.Text != string.Empty && Txt_Apellido.Text != string.Empty && Cb_Bandera.Text != string.Empty)
             {
-                string filePath = "C:\\Datos_Empaque\\Claves.xlsx";
+                string filePath = "\\\\192.168.0.2\\C$\\clavesSurtido\\Claves.xlsx";
                 using (SLDocument documento = new SLDocument(filePath))
                 {
+                    int i = 1;
+                    while (documento.HasCellValue("A" + i))
+                    {
+                        if (Txt_Numero.Text == documento.GetCellValueAsString("A" + i))
+                        {
+                            MessageBox.Show("Ese número ya existe", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Txt_Numero.Focus();
+                            return;
+                        }
+                        i++;
+                    }
                     int filas = (documento.GetWorksheetStatistics().NumberOfRows) + 1;
                     documento.SetCellValue("A" + filas, int.Parse(Txt_Numero.Text));
                     documento.SetCellValue("B" + filas, Txt_Apellido.Text + " " + Txt_Nombre.Text);
@@ -76,6 +88,8 @@ namespace FireBird
                 MessageBox.Show("Agregado con Éxito");
                 Txt_Nombre.Text = string.Empty;
                 Txt_Numero.Text = string.Empty;
+                Txt_Apellido.Text = string.Empty;
+                Cb_Bandera.SelectedIndex = -1;
                 Txt_Numero.Focus();
                 this.Close();
             }
@@ -83,6 +97,34 @@ namespace FireBird
             {
                 MessageBox.Show("Aún no has llenado todos los campos", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Txt_Numero.Focus();
+            }
+        }
+
+        private void Txt_Apellido_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                Cb_Bandera.Focus();
+            }
+        }
+
+        private void Cb_Bandera_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                Btn_Agregar.Focus();
+            }
+        }
+
+        private void Txt_Apellido_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsLetter(e.KeyChar)) && (e.KeyChar != (char)Keys.Back) && (e.KeyChar != (char)Keys.Enter) && (e.KeyChar != (char)Keys.Space))
+            {
+                MessageBox.Show("Solo se permiten letras", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
             }
         }
     }
