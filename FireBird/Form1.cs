@@ -38,6 +38,7 @@ namespace FireBird
         //MAIN
         DateTime fechaActual = DateTime.Now;
         string columnadescripcion;
+        string condicion;
         string columnacliente;
         string ciudad;
         string Buscar_Folio;
@@ -48,7 +49,9 @@ namespace FireBird
         string oficial_empacador;
         string oficial_cliente;
         string oficial_factura;
+        string oficial_condicion;
         decimal oficial_importe;
+        string columnaciudad;
         string Current_Surtidor;
         int Current_Bultos;
         int Bultos_repetidos;
@@ -297,7 +300,7 @@ namespace FireBird
 
             Bitmap bm = new Bitmap(Imagen_Codigo.Width, Imagen_Codigo.Height);
             Imagen_Codigo.DrawToBitmap(bm, new Rectangle(0, 0, Imagen_Codigo.Width, Imagen_Codigo.Height));
-            e.Graphics.DrawImage(bm, 200, 160);
+            e.Graphics.DrawImage(bm, 140, 160);
             bm.Dispose();
             contador++;
             e.HasMorePages = contador < oficial_bultos;
@@ -403,6 +406,7 @@ namespace FireBird
                             string columnafecha = reader0.GetString(5);
                             string fechacorta = columnafecha.Substring(0, 10);
                             columnacliente = reader0.GetString(9);
+                            string direccion = reader0.GetString(12);
                             decimal importe = reader0.GetDecimal(23);
                             //  columnadescripcion = reader0.GetString(42);
                             string columna5 = reader0.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
@@ -411,6 +415,7 @@ namespace FireBird
                                 string fact = columna5;
                                 oficial_importe = importe;
                                 oficial_factura = fact.Remove(2, 1);
+                                columnaciudad = direccion;
                                 encontrado = true;
                                 break;
                             }
@@ -460,8 +465,10 @@ namespace FireBird
                             string columnafecha = reader.GetString(5);
                             string fechacorta = columnafecha.Substring(0, 10);
                             columnacliente = reader.GetString(8);
+                            columnaciudad = reader.GetString(10);
                             columnadescripcion = reader.GetString(42);
                             decimal importe = reader.GetDecimal(26);
+                            condicion = reader.GetString(37);
                             string columna5 = reader.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
                             if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'A'))
                             {
@@ -523,16 +530,27 @@ namespace FireBird
                     FbDataReader reader4 = command4.ExecuteReader();
 
                     // Iterar sobre los registros y mostrar los valores
+
                     while (reader4.Read())
                     {
-                        string ciudadid = reader4.GetString(12);
-                        string clienteid = reader4.GetString(1);
-                        if (clienteid == columnacliente)
+                        string clienteidconsig = reader4.GetString(0);
+                        string ciudadconsig = reader4.GetString(12);
+                        if (clienteidconsig == columnaciudad)
                         {
-                            ciudad = ciudadid;
+                            ciudad = ciudadconsig;
                             break;
                         }
                     }
+                    //while (reader4.Read())
+                    //{
+                    //    string ciudadid = reader4.GetString(12);
+                    //    string clienteid = reader4.GetString(1);
+                    //    if (clienteid == columnacliente)
+                    //    {
+                    //        ciudad = ciudadid;
+                    //        break;
+                    //    }
+                    //}
                     reader4.Close();
                     string query5 = "SELECT * FROM CIUDADES ORDER BY CIUDAD_ID ASC";
                     FbCommand command5 = new FbCommand(query5, con);
@@ -546,6 +564,23 @@ namespace FireBird
                         if (ciudadid == ciudad)
                         {
                             oficial_poblacion = cliente_ciudad;
+                            break;
+                        }
+                    }
+                    reader5.Close();
+
+                    string query6 = "SELECT * FROM CONDICIONES_PAGO";
+                    FbCommand command6 = new FbCommand(query6, con);
+                    FbDataReader reader6 = command6.ExecuteReader();
+
+                    // Iterar sobre los registros y mostrar los valores
+                    while (reader6.Read())
+                    {
+                        string condid = reader6.GetString(0);
+                        string info_cond = reader6.GetString(1);
+                        if (condid == condicion)
+                        {
+                            oficial_condicion = info_cond;
                             break;
                         }
                     }
@@ -617,7 +652,7 @@ namespace FireBird
                     }
                     i++;
                 }
-                int[] columnas = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+                int[] columnas = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
                 foreach (int columna in columnas)
                 {
                     sl.SetColumnWidth(columna, 30);
@@ -640,6 +675,7 @@ namespace FireBird
                 sl.SetCellValue("H" + i, oficial_poblacion);
                 sl.SetCellValue("I" + i, oficial_ciudad);
                 sl.SetCellValue("J" + i, oficial_importe);
+                sl.SetCellValue("K" + i, oficial_condicion);
                 sl.SaveAs(path);
                 if (nombresArray.Contains(Current_Surtidor))
                 {
@@ -668,7 +704,8 @@ namespace FireBird
                 table.Columns.Add("Localidad", typeof(string));
                 table.Columns.Add("Ruta", typeof(string));
                 table.Columns.Add("Importe", typeof(decimal));
-                table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe);
+                table.Columns.Add("Condicion", typeof(string));
+                table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe, oficial_condicion);
                 oSLDocument.ImportDataTable(1, 1, table, true);
                 oSLDocument.SaveAs(path);
 
@@ -722,7 +759,7 @@ namespace FireBird
         {
             if (!nombresArray.Contains(Cb_Empacador.Text) && Cb_Empacador.Text != "")
             {
-                MessageBox.Show("Ese surtidor no está registrado", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Este usuario no está registrado", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Cb_Empacador.Text = "";
                 Cb_Empacador.Focus();
             }
