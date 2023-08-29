@@ -36,6 +36,7 @@ namespace FireBird
         bool encontrado2 = false;
         int Codigo_nuevo;
         //MAIN
+        int contador_amazon;
         DateTime fechaActual = DateTime.Now;
         string columnadescripcion;
         string condicion;
@@ -54,6 +55,7 @@ namespace FireBird
         string columnaciudad;
         string Current_Surtidor;
         int Current_Bultos;
+        int t;
         int Bultos_repetidos;
         List<string> nombresArray = new();
         string path;
@@ -73,6 +75,7 @@ namespace FireBird
             Cb_Empacador.SelectedIndex = -1;
             Add = new Agregar();
             Cb_Empacador.DropDownHeight = 250;
+            Cb_Amazon.SelectedIndex = 0;
         }
         public void Leer_Datos()
         {
@@ -98,7 +101,7 @@ namespace FireBird
             Cb_Empacador.AutoCompleteMode = AutoCompleteMode.Append;
             Cb_Empacador.AutoCompleteSource = AutoCompleteSource.CustomSource;
             Cb_Empacador.AutoCompleteCustomSource.AddRange(nombresArray.ToArray());
-            Cb_Empacador.Text = "";
+            //Cb_Empacador.Text = "";
         }
         public void CrearExcel()
         {
@@ -379,6 +382,36 @@ namespace FireBird
         {
             if (TxtFolio.Text != string.Empty && TxtBultos.Text != string.Empty && Cb_Empacador.Text != string.Empty)
             {
+                bool fileExist = File.Exists(path);
+                if (fileExist)
+                {
+                    SLDocument sl2 = new(path);
+                    sl2.SelectWorksheet("Reporte Empaque");
+                    t = 2;
+                    while (sl2.HasCellValue("B" + t))
+                    {
+                        if (sl2.GetCellValueAsString("B" + t) == TxtFolio.Text)
+                        {
+                            Existe = true;
+                            int Bultos_repetidos2 = sl2.GetCellValueAsInt32("F" + t);
+                            string Current_Surtidor2 = sl2.GetCellValueAsString("E" + t);
+                            string hora_repetido = sl2.GetCellValueAsString("D" + t);
+                            string fecha_repetido = sl2.GetCellValueAsString("C" + t);
+                            DialogResult resultado = MessageBox.Show("LA FACTURA QUE VAS A IMPRIMIR YA HA SIDO EMPACADA POR" + "\n" + Current_Surtidor2 + "\n" + "CON " + Bultos_repetidos2 + " BULTOS" + "\n" + "A LAS " + hora_repetido + " DE " + fecha_repetido + "\n \n \t\t" + "¿DESEAS REIMPRIMIRLA?", "ADVERTENCIA", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                            if (resultado == DialogResult.Cancel)
+                            {
+                                TxtBultos.Text = string.Empty;
+                                Cb_Empacador.Text = string.Empty;
+                                TxtFolio.Text = string.Empty;
+                                Existe = false;
+                                TxtFolio.Focus();
+                                return;
+                            }
+                            break;
+                        }
+                        t++;
+                    }
+                }
                 FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
                 try
                 {
@@ -448,7 +481,8 @@ namespace FireBird
                     else
                     {
 
-                        string query = "SELECT * FROM DOCTOS_VE WHERE (FOLIO LIKE 'PF%' OR FOLIO LIKE 'PE%' OR FOLIO LIKE 'PA%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
+                        //string query = "SELECT * FROM DOCTOS_VE WHERE (FOLIO LIKE 'PF%' OR FOLIO LIKE 'PE%' OR FOLIO LIKE 'PA%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
+                        string query = "SELECT * FROM DOCTOS_VE WHERE FOLIO = '" + TxtFolio.Text + "' AND ESTATUS = 'N'";
                         FbCommand command = new FbCommand(query, con);
 
                         // Objeto para leer los datos obtenidos
@@ -491,8 +525,26 @@ namespace FireBird
                         }
 
                         reader.Close();
+
+                        //string query6 = "SELECT * FROM CONDICIONES_PAGO";
+                        string query6 = "SELECT * FROM CONDICIONES_PAGO WHERE COND_PAGO_ID ='" + condicion + "'";
+                        FbCommand command6 = new FbCommand(query6, con);
+                        FbDataReader reader6 = command6.ExecuteReader();
+                        // Iterar sobre los registros y mostrar los valores
+                        while (reader6.Read())
+                        {
+                            string condid = reader6.GetString(0);
+                            string info_cond = reader6.GetString(1);
+                            if (condid == condicion)
+                            {
+                                oficial_condicion = info_cond;
+                                break;
+                            }
+                        }
+                        reader6.Close();
                     }
-                    string query2 = "SELECT * FROM VIAS_EMBARQUE ORDER BY VIA_EMBARQUE_ID ASC";
+                    //string query2 = "SELECT * FROM VIAS_EMBARQUE ORDER BY VIA_EMBARQUE_ID ASC";
+                    string query2 = "SELECT * FROM VIAS_EMBARQUE WHERE VIA_EMBARQUE_ID = '" + columnadescripcion + "'";
                     FbCommand command2 = new FbCommand(query2, con);
                     FbDataReader reader2 = command2.ExecuteReader();
 
@@ -509,7 +561,8 @@ namespace FireBird
                     }
 
                     reader2.Close();
-                    string query3 = "SELECT * FROM CLIENTES ORDER BY CLIENTE_ID ASC";
+                    //string query3 = "SELECT * FROM CLIENTES ORDER BY CLIENTE_ID ASC";
+                    string query3 = "SELECT * FROM CLIENTES WHERE CLIENTE_ID ='" + columnacliente + "'";
                     FbCommand command3 = new FbCommand(query3, con);
                     FbDataReader reader3 = command3.ExecuteReader();
 
@@ -525,7 +578,8 @@ namespace FireBird
                         }
                     }
                     reader3.Close();
-                    string query4 = "SELECT * FROM DIRS_CLIENTES ORDER BY CLIENTE_ID ASC";
+                    //string query4 = "SELECT * FROM DIRS_CLIENTES ORDER BY CLIENTE_ID ASC";
+                    string query4 = "SELECT * FROM DIRS_CLIENTES WHERE DIR_CLI_ID ='" + columnaciudad + "'";
                     FbCommand command4 = new FbCommand(query4, con);
                     FbDataReader reader4 = command4.ExecuteReader();
 
@@ -552,7 +606,8 @@ namespace FireBird
                     //    }
                     //}
                     reader4.Close();
-                    string query5 = "SELECT * FROM CIUDADES ORDER BY CIUDAD_ID ASC";
+                    //string query5 = "SELECT * FROM CIUDADES ORDER BY CIUDAD_ID ASC";
+                    string query5 = "SELECT * FROM CIUDADES WHERE CIUDAD_ID ='" + ciudad + "'";
                     FbCommand command5 = new FbCommand(query5, con);
                     FbDataReader reader5 = command5.ExecuteReader();
 
@@ -564,23 +619,6 @@ namespace FireBird
                         if (ciudadid == ciudad)
                         {
                             oficial_poblacion = cliente_ciudad;
-                            break;
-                        }
-                    }
-                    reader5.Close();
-
-                    string query6 = "SELECT * FROM CONDICIONES_PAGO";
-                    FbCommand command6 = new FbCommand(query6, con);
-                    FbDataReader reader6 = command6.ExecuteReader();
-
-                    // Iterar sobre los registros y mostrar los valores
-                    while (reader6.Read())
-                    {
-                        string condid = reader6.GetString(0);
-                        string info_cond = reader6.GetString(1);
-                        if (condid == condicion)
-                        {
-                            oficial_condicion = info_cond;
                             break;
                         }
                     }
@@ -640,18 +678,15 @@ namespace FireBird
             {
                 SLDocument sl = new(path);
                 sl.SelectWorksheet("Reporte Empaque");
-                int i = 2;
-                while (sl.HasCellValue("B" + i))
+                if (Existe == true)
                 {
-                    if (sl.GetCellValueAsString("B" + i) == TxtFolio.Text)
-                    {
-                        Existe = true;
-                        Bultos_repetidos = sl.GetCellValueAsInt32("F" + i);
-                        Current_Surtidor = sl.GetCellValueAsString("E" + i);
-                        break;
-                    }
-                    i++;
+                    Bultos_repetidos = sl.GetCellValueAsInt32("F" + t);
+                    Current_Surtidor = sl.GetCellValueAsString("E" + t);
+
                 }
+                else
+                    Current_Surtidor = Cb_Empacador.Text;
+
                 int[] columnas = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
                 foreach (int columna in columnas)
                 {
@@ -665,17 +700,17 @@ namespace FireBird
                     if (columna == 4 || columna == 9)
                         sl.SetColumnWidth(columna, 15);
                 }
-                sl.SetCellValue("A" + i, i - 1);
-                sl.SetCellValue("B" + i, TxtFolio.Text);
-                sl.SetCellValue("C" + i, LbFecha.Text);
-                sl.SetCellValue("D" + i, Lbhora.Text);
-                sl.SetCellValue("E" + i, Current_Surtidor);
-                sl.SetCellValue("F" + i, int.Parse(TxtBultos.Text));
-                sl.SetCellValue("G" + i, oficial_cliente);
-                sl.SetCellValue("H" + i, oficial_poblacion);
-                sl.SetCellValue("I" + i, oficial_ciudad);
-                sl.SetCellValue("J" + i, oficial_importe);
-                sl.SetCellValue("K" + i, oficial_condicion);
+                sl.SetCellValue("A" + t, t - 1);
+                sl.SetCellValue("B" + t, TxtFolio.Text);
+                sl.SetCellValue("C" + t, LbFecha.Text);
+                sl.SetCellValue("D" + t, Lbhora.Text);
+                sl.SetCellValue("E" + t, Cb_Empacador.Text);
+                sl.SetCellValue("F" + t, int.Parse(TxtBultos.Text));
+                sl.SetCellValue("G" + t, oficial_cliente);
+                sl.SetCellValue("H" + t, oficial_poblacion);
+                sl.SetCellValue("I" + t, oficial_ciudad);
+                sl.SetCellValue("J" + t, oficial_importe);
+                sl.SetCellValue("K" + t, oficial_condicion);
                 sl.SaveAs(path);
                 if (nombresArray.Contains(Current_Surtidor))
                 {
@@ -1110,6 +1145,58 @@ namespace FireBird
                 MessageBox.Show("Aún no has llenado todos los campos", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Txt_FacturaB.Focus();
             }
+        }
+
+        private void Btn_Amazon_Click(object sender, EventArgs e)
+        {
+            contador_amazon = 0;
+            //printPreviewDialog1.Document = Print_Amazon;
+            //printPreviewDialog1.ShowDialog();
+            printDialog1.Document = Print_Amazon;
+            if (printDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Print_Amazon.Print();
+                Num_Amazon.Value = 0;
+            }
+            else
+            {
+                Num_Amazon.Value = 0;
+                Cb_Amazon.Select();
+            }
+        }
+
+        private void Print_Amazon_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            using (Font font = new Font("Arial", 55, FontStyle.Bold))
+            {
+                e.Graphics.DrawString("AMAZON", font, Brushes.Black, new PointF(15, 0));
+            }
+            if (Cb_Amazon.Text == "LOCAL")
+            {
+                using (Font font = new Font("Arial", 45, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString(Cb_Amazon.Text, font, Brushes.Black, new PointF(10, 100));
+                }
+            }
+            else
+            {
+                using (Font font = new Font("Arial", 32, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString(Cb_Amazon.Text, font, Brushes.Black, new PointF(10, 100));
+                }
+            }
+            Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
+            e.Graphics.DrawImage(image, new PointF(250, 85));
+
+            Pen pen = new Pen(System.Drawing.Color.Black, 2);
+            e.Graphics.DrawLine(pen, new System.Drawing.Point(30, 230), new System.Drawing.Point(350, 230));
+            contador_amazon++;
+            e.HasMorePages = contador_amazon < Num_Amazon.Value;
+        }
+
+        private void Num_Amazon_Click(object sender, EventArgs e)
+        {
+            Num_Amazon.Select(0, Num_Amazon.Text.Length);
         }
     }
 }

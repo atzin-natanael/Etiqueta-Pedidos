@@ -63,6 +63,7 @@
             label5 = new Label();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            label10 = new Label();
             tabPage2 = new TabPage();
             pictureBox12 = new PictureBox();
             ImagenCodigo2 = new PictureBox();
@@ -76,11 +77,20 @@
             Btn_Buscar = new Button();
             label9 = new Label();
             Txt_FacturaB = new TextBox();
+            tabPage4 = new TabPage();
+            Cb_Amazon = new ComboBox();
+            Num_Amazon = new NumericUpDown();
+            label13 = new Label();
+            pictureBox10 = new PictureBox();
+            label11 = new Label();
+            Btn_Amazon = new Button();
+            label12 = new Label();
             FlowLayoutPanel1 = new FlowLayoutPanel();
             Pb_Cerrar = new PictureBox();
             Btn_Max = new PictureBox();
             Pb_Min = new PictureBox();
             printDocument2 = new System.Drawing.Printing.PrintDocument();
+            Print_Amazon = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)Imagen_Codigo).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -101,6 +111,9 @@
             ((System.ComponentModel.ISupportInitialize)ImagenCodigo2).BeginInit();
             tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox13).BeginInit();
+            tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)Num_Amazon).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox10).BeginInit();
             FlowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)Pb_Cerrar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)Btn_Max).BeginInit();
@@ -495,6 +508,7 @@
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
+            tabControl1.Controls.Add(tabPage4);
             tabControl1.Location = new Point(0, 48);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
@@ -504,6 +518,7 @@
             // tabPage1
             // 
             tabPage1.BackColor = Color.DimGray;
+            tabPage1.Controls.Add(label10);
             tabPage1.Controls.Add(Lbhora);
             tabPage1.Controls.Add(pictureBox5);
             tabPage1.Controls.Add(pictureBox3);
@@ -533,6 +548,14 @@
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Inicio";
             tabPage1.Resize += tabPage1_Resize;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(811, 45);
+            label10.Name = "label10";
+            label10.Size = new Size(0, 15);
+            label10.TabIndex = 35;
             // 
             // tabPage2
             // 
@@ -587,7 +610,7 @@
             // BtnImprimirCenefa
             // 
             BtnImprimirCenefa.Anchor = AnchorStyles.Top;
-            BtnImprimirCenefa.BackColor = Color.DarkOrange;
+            BtnImprimirCenefa.BackColor = Color.Purple;
             BtnImprimirCenefa.Cursor = Cursors.Hand;
             BtnImprimirCenefa.FlatStyle = FlatStyle.Flat;
             BtnImprimirCenefa.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
@@ -605,7 +628,7 @@
             label7.Anchor = AnchorStyles.Top;
             label7.AutoSize = true;
             label7.Font = new Font("Verdana", 21.75F, FontStyle.Bold, GraphicsUnit.Point);
-            label7.ForeColor = Color.DarkOrange;
+            label7.ForeColor = Color.Purple;
             label7.Location = new Point(392, 143);
             label7.Name = "label7";
             label7.Size = new Size(276, 35);
@@ -698,6 +721,113 @@
             Txt_FacturaB.Size = new Size(234, 33);
             Txt_FacturaB.TabIndex = 39;
             // 
+            // tabPage4
+            // 
+            tabPage4.BackColor = Color.DimGray;
+            tabPage4.Controls.Add(Cb_Amazon);
+            tabPage4.Controls.Add(Num_Amazon);
+            tabPage4.Controls.Add(label13);
+            tabPage4.Controls.Add(pictureBox10);
+            tabPage4.Controls.Add(label11);
+            tabPage4.Controls.Add(Btn_Amazon);
+            tabPage4.Controls.Add(label12);
+            tabPage4.Location = new Point(4, 27);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Padding = new Padding(3);
+            tabPage4.Size = new Size(1000, 585);
+            tabPage4.TabIndex = 3;
+            tabPage4.Text = "Amazon";
+            // 
+            // Cb_Amazon
+            // 
+            Cb_Amazon.Anchor = AnchorStyles.Top;
+            Cb_Amazon.DropDownStyle = ComboBoxStyle.DropDownList;
+            Cb_Amazon.FlatStyle = FlatStyle.Flat;
+            Cb_Amazon.Font = new Font("Verdana", 18F, FontStyle.Bold, GraphicsUnit.Point);
+            Cb_Amazon.FormattingEnabled = true;
+            Cb_Amazon.Items.AddRange(new object[] { "LOCAL", "FORÁNEO" });
+            Cb_Amazon.Location = new Point(342, 236);
+            Cb_Amazon.Name = "Cb_Amazon";
+            Cb_Amazon.Size = new Size(193, 37);
+            Cb_Amazon.TabIndex = 51;
+            // 
+            // Num_Amazon
+            // 
+            Num_Amazon.Anchor = AnchorStyles.Top;
+            Num_Amazon.BorderStyle = BorderStyle.None;
+            Num_Amazon.Font = new Font("Verdana", 18F, FontStyle.Bold, GraphicsUnit.Point);
+            Num_Amazon.Location = new Point(596, 236);
+            Num_Amazon.Maximum = new decimal(new int[] { 50, 0, 0, 0 });
+            Num_Amazon.Name = "Num_Amazon";
+            Num_Amazon.Size = new Size(83, 33);
+            Num_Amazon.TabIndex = 52;
+            Num_Amazon.Click += Num_Amazon_Click;
+            // 
+            // label13
+            // 
+            label13.Anchor = AnchorStyles.Top;
+            label13.AutoSize = true;
+            label13.BackColor = Color.Transparent;
+            label13.Font = new Font("Verdana", 21.75F, FontStyle.Bold, GraphicsUnit.Point);
+            label13.ForeColor = Color.FromArgb(255, 155, 0);
+            label13.Location = new Point(533, 141);
+            label13.Name = "label13";
+            label13.Size = new Size(146, 35);
+            label13.TabIndex = 49;
+            label13.Text = "Amazon";
+            // 
+            // pictureBox10
+            // 
+            pictureBox10.Anchor = AnchorStyles.Top;
+            pictureBox10.BackColor = Color.Transparent;
+            pictureBox10.Image = (Image)resources.GetObject("pictureBox10.Image");
+            pictureBox10.Location = new Point(287, 0);
+            pictureBox10.Name = "pictureBox10";
+            pictureBox10.Size = new Size(445, 138);
+            pictureBox10.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox10.TabIndex = 48;
+            pictureBox10.TabStop = false;
+            // 
+            // label11
+            // 
+            label11.Anchor = AnchorStyles.Top;
+            label11.AutoSize = true;
+            label11.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
+            label11.Location = new Point(45, 238);
+            label11.Name = "label11";
+            label11.Size = new Size(253, 25);
+            label11.TabIndex = 47;
+            label11.Text = "Diseño de etiquetas:";
+            // 
+            // Btn_Amazon
+            // 
+            Btn_Amazon.Anchor = AnchorStyles.Top;
+            Btn_Amazon.BackColor = Color.FromArgb(255, 155, 0);
+            Btn_Amazon.Cursor = Cursors.Hand;
+            Btn_Amazon.FlatStyle = FlatStyle.Flat;
+            Btn_Amazon.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
+            Btn_Amazon.ForeColor = Color.FromArgb(28, 25, 25);
+            Btn_Amazon.Location = new Point(808, 227);
+            Btn_Amazon.Name = "Btn_Amazon";
+            Btn_Amazon.Size = new Size(144, 54);
+            Btn_Amazon.TabIndex = 53;
+            Btn_Amazon.Text = "Imprimir";
+            Btn_Amazon.UseVisualStyleBackColor = false;
+            Btn_Amazon.Click += Btn_Amazon_Click;
+            // 
+            // label12
+            // 
+            label12.Anchor = AnchorStyles.Top;
+            label12.AutoSize = true;
+            label12.BackColor = Color.Transparent;
+            label12.Font = new Font("Verdana", 21.75F, FontStyle.Bold, GraphicsUnit.Point);
+            label12.ForeColor = Color.White;
+            label12.Location = new Point(377, 141);
+            label12.Name = "label12";
+            label12.Size = new Size(150, 35);
+            label12.TabIndex = 45;
+            label12.Text = "Etiqueta";
+            // 
             // FlowLayoutPanel1
             // 
             FlowLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -761,6 +891,10 @@
             // 
             printDocument2.PrintPage += printDocument2_PrintPage;
             // 
+            // Print_Amazon
+            // 
+            Print_Amazon.PrintPage += Print_Amazon_PrintPage;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -804,6 +938,10 @@
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox13).EndInit();
+            tabPage4.ResumeLayout(false);
+            tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)Num_Amazon).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox10).EndInit();
             FlowLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)Pb_Cerrar).EndInit();
             ((System.ComponentModel.ISupportInitialize)Btn_Max).EndInit();
@@ -863,5 +1001,15 @@
         private Label label9;
         private TextBox Txt_FacturaB;
         private System.Drawing.Printing.PrintDocument printDocument2;
+        private TabPage tabPage4;
+        private Label label10;
+        private Label label13;
+        private PictureBox pictureBox10;
+        private Label label11;
+        private Button Btn_Amazon;
+        private Label label12;
+        private ComboBox Cb_Amazon;
+        private NumericUpDown Num_Amazon;
+        private System.Drawing.Printing.PrintDocument Print_Amazon;
     }
 }
