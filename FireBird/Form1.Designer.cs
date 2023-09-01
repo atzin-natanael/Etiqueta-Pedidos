@@ -63,6 +63,7 @@
             label5 = new Label();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            label14 = new Label();
             label10 = new Label();
             tabPage2 = new TabPage();
             pictureBox12 = new PictureBox();
@@ -518,6 +519,7 @@
             // tabPage1
             // 
             tabPage1.BackColor = Color.DimGray;
+            tabPage1.Controls.Add(label14);
             tabPage1.Controls.Add(label10);
             tabPage1.Controls.Add(Lbhora);
             tabPage1.Controls.Add(pictureBox5);
@@ -548,6 +550,16 @@
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Inicio";
             tabPage1.Resize += tabPage1_Resize;
+            // 
+            // label14
+            // 
+            label14.Anchor = AnchorStyles.Top;
+            label14.AutoSize = true;
+            label14.Location = new Point(922, 5);
+            label14.Name = "label14";
+            label14.Size = new Size(72, 15);
+            label14.TabIndex = 36;
+            label14.Text = "Versión 1.0.3";
             // 
             // label10
             // 
@@ -746,7 +758,7 @@
             Cb_Amazon.Font = new Font("Verdana", 18F, FontStyle.Bold, GraphicsUnit.Point);
             Cb_Amazon.FormattingEnabled = true;
             Cb_Amazon.Items.AddRange(new object[] { "LOCAL", "FORÁNEO" });
-            Cb_Amazon.Location = new Point(342, 236);
+            Cb_Amazon.Location = new Point(304, 232);
             Cb_Amazon.Name = "Cb_Amazon";
             Cb_Amazon.Size = new Size(193, 37);
             Cb_Amazon.TabIndex = 51;
@@ -756,11 +768,14 @@
             Num_Amazon.Anchor = AnchorStyles.Top;
             Num_Amazon.BorderStyle = BorderStyle.None;
             Num_Amazon.Font = new Font("Verdana", 18F, FontStyle.Bold, GraphicsUnit.Point);
-            Num_Amazon.Location = new Point(596, 236);
+            Num_Amazon.Location = new Point(551, 232);
             Num_Amazon.Maximum = new decimal(new int[] { 50, 0, 0, 0 });
+            Num_Amazon.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             Num_Amazon.Name = "Num_Amazon";
             Num_Amazon.Size = new Size(83, 33);
             Num_Amazon.TabIndex = 52;
+            Num_Amazon.TextAlign = HorizontalAlignment.Center;
+            Num_Amazon.Value = new decimal(new int[] { 1, 0, 0, 0 });
             Num_Amazon.Click += Num_Amazon_Click;
             // 
             // label13
@@ -807,7 +822,7 @@
             Btn_Amazon.FlatStyle = FlatStyle.Flat;
             Btn_Amazon.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             Btn_Amazon.ForeColor = Color.FromArgb(28, 25, 25);
-            Btn_Amazon.Location = new Point(808, 227);
+            Btn_Amazon.Location = new Point(680, 219);
             Btn_Amazon.Name = "Btn_Amazon";
             Btn_Amazon.Size = new Size(144, 54);
             Btn_Amazon.TabIndex = 53;
@@ -1011,5 +1026,6 @@
         private ComboBox Cb_Amazon;
         private NumericUpDown Num_Amazon;
         private System.Drawing.Printing.PrintDocument Print_Amazon;
+        private Label label14;
     }
 }

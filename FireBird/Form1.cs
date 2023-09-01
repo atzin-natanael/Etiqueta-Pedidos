@@ -492,7 +492,7 @@ namespace FireBird
                         oficial_empacador = Cb_Empacador.Text;
                         oficial_bultos = int.Parse(TxtBultos.Text);
                         // Iterar sobre los registros y mostrar los valores
-                        while (reader.Read())
+                        if (reader.Read())
                         {
                             // Acceder a los valores de cada columna por su índice o nombre
                             string columna1 = reader.GetString(0);
@@ -506,7 +506,7 @@ namespace FireBird
                             string columna5 = reader.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
                             if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'A'))
                             {
-                                break;
+                                return;
                             }
                             if (columna5 == Buscar_Folio)
                             {
@@ -514,8 +514,6 @@ namespace FireBird
                                 oficial_importe = importe;
                                 oficial_factura = fact.Remove(2, 1);
                                 encontrado = true;
-
-                                break;
                             }
                         }
                         if (encontrado == false)
@@ -531,14 +529,13 @@ namespace FireBird
                         FbCommand command6 = new FbCommand(query6, con);
                         FbDataReader reader6 = command6.ExecuteReader();
                         // Iterar sobre los registros y mostrar los valores
-                        while (reader6.Read())
+                        if (reader6.Read())
                         {
                             string condid = reader6.GetString(0);
                             string info_cond = reader6.GetString(1);
                             if (condid == condicion)
                             {
                                 oficial_condicion = info_cond;
-                                break;
                             }
                         }
                         reader6.Close();
@@ -549,14 +546,13 @@ namespace FireBird
                     FbDataReader reader2 = command2.ExecuteReader();
 
                     // Iterar sobre los registros y mostrar los valores
-                    while (reader2.Read())
+                    if (reader2.Read())
                     {
                         string columna11 = reader2.GetString(0);
                         string ruta = reader2.GetString(1);
                         if (columna11 == columnadescripcion)
                         {
                             oficial_ciudad = ruta;
-                            break;
                         }
                     }
 
@@ -567,14 +563,13 @@ namespace FireBird
                     FbDataReader reader3 = command3.ExecuteReader();
 
                     // Iterar sobre los registros y mostrar los valores
-                    while (reader3.Read())
+                    if (reader3.Read())
                     {
                         string columna111 = reader3.GetString(0);
                         string cliente = reader3.GetString(1);
                         if (columna111 == columnacliente)
                         {
                             oficial_cliente = cliente;
-                            break;
                         }
                     }
                     reader3.Close();
@@ -585,44 +580,39 @@ namespace FireBird
 
                     // Iterar sobre los registros y mostrar los valores
 
-                    while (reader4.Read())
+                    if (reader4.Read())
                     {
                         string clienteidconsig = reader4.GetString(0);
                         string ciudadconsig = reader4.GetString(12);
                         if (clienteidconsig == columnaciudad)
                         {
                             ciudad = ciudadconsig;
-                            break;
                         }
                     }
-                    //while (reader4.Read())
-                    //{
-                    //    string ciudadid = reader4.GetString(12);
-                    //    string clienteid = reader4.GetString(1);
-                    //    if (clienteid == columnacliente)
-                    //    {
-                    //        ciudad = ciudadid;
-                    //        break;
-                    //    }
-                    //}
                     reader4.Close();
-                    //string query5 = "SELECT * FROM CIUDADES ORDER BY CIUDAD_ID ASC";
-                    string query5 = "SELECT * FROM CIUDADES WHERE CIUDAD_ID ='" + ciudad + "'";
-                    FbCommand command5 = new FbCommand(query5, con);
-                    FbDataReader reader5 = command5.ExecuteReader();
-
-                    // Iterar sobre los registros y mostrar los valores
-                    while (reader5.Read())
+                    if (ciudad != "")
                     {
-                        string ciudadid = reader5.GetString(0);
-                        string cliente_ciudad = reader5.GetString(1);
-                        if (ciudadid == ciudad)
+                        string query5 = "SELECT * FROM CIUDADES WHERE CIUDAD_ID ='" + ciudad + "'";
+                        FbCommand command5 = new FbCommand(query5, con);
+                        FbDataReader reader5 = command5.ExecuteReader();
+
+                        // Iterar sobre los registros y mostrar los valores
+                        if (reader5.Read())
                         {
-                            oficial_poblacion = cliente_ciudad;
-                            break;
+                            string ciudadid = reader5.GetString(0);
+                            string cliente_ciudad = reader5.GetString(1);
+                            if (ciudadid == ciudad)
+                            {
+                                oficial_poblacion = cliente_ciudad;
+                            }
                         }
+                        reader5.Close();
                     }
-                    reader5.Close();
+                    else
+                    {
+                        oficial_poblacion = "CIUDAD NO ASIGNADA";
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -633,6 +623,7 @@ namespace FireBird
                     TxtFolio.Text = string.Empty;
                     Cb_Empacador.Text = string.Empty;
                     TxtFolio.Select();
+                    con.Close();
                     return;
                 }
                 /*
@@ -712,9 +703,9 @@ namespace FireBird
                 sl.SetCellValue("J" + t, oficial_importe);
                 sl.SetCellValue("K" + t, oficial_condicion);
                 sl.SaveAs(path);
-                if (nombresArray.Contains(Current_Surtidor))
+                if (nombresArray.Contains(Cb_Empacador.Text))
                 {
-                    int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Current_Surtidor));
+                    int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Cb_Empacador.Text));
                     if (nombresValor[posicion] == "S")
                     {
                         Promedio();
@@ -1156,11 +1147,11 @@ namespace FireBird
             if (printDialog1.ShowDialog() == DialogResult.OK)
             {
                 Print_Amazon.Print();
-                Num_Amazon.Value = 0;
+                Num_Amazon.Value = 1;
             }
             else
             {
-                Num_Amazon.Value = 0;
+                Num_Amazon.Value = 1;
                 Cb_Amazon.Select();
             }
         }
