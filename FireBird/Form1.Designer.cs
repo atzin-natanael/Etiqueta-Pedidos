@@ -66,6 +66,8 @@
             label14 = new Label();
             label10 = new Label();
             tabPage2 = new TabPage();
+            Check = new CheckBox();
+            TxtCodigo2 = new TextBox();
             pictureBox12 = new PictureBox();
             ImagenCodigo2 = new PictureBox();
             label6 = new Label();
@@ -92,6 +94,7 @@
             Pb_Min = new PictureBox();
             printDocument2 = new System.Drawing.Printing.PrintDocument();
             Print_Amazon = new System.Drawing.Printing.PrintDocument();
+            printDocument3 = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)Imagen_Codigo).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -128,7 +131,7 @@
             TxtFolio.CharacterCasing = CharacterCasing.Upper;
             TxtFolio.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             TxtFolio.ForeColor = Color.Black;
-            TxtFolio.Location = new Point(155, 167);
+            TxtFolio.Location = new Point(155, 190);
             TxtFolio.MaxLength = 9;
             TxtFolio.Multiline = true;
             TxtFolio.Name = "TxtFolio";
@@ -189,7 +192,7 @@
             BtnImprimir.Cursor = Cursors.Hand;
             BtnImprimir.Font = new Font("Verdana", 12F, FontStyle.Bold, GraphicsUnit.Point);
             BtnImprimir.ForeColor = Color.Black;
-            BtnImprimir.Location = new Point(424, 262);
+            BtnImprimir.Location = new Point(424, 287);
             BtnImprimir.Name = "BtnImprimir";
             BtnImprimir.Size = new Size(184, 68);
             BtnImprimir.TabIndex = 4;
@@ -203,7 +206,7 @@
             TxtBultos.BackColor = Color.White;
             TxtBultos.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             TxtBultos.ForeColor = Color.Black;
-            TxtBultos.Location = new Point(155, 234);
+            TxtBultos.Location = new Point(155, 265);
             TxtBultos.Multiline = true;
             TxtBultos.Name = "TxtBultos";
             TxtBultos.PlaceholderText = "BULTOS";
@@ -218,7 +221,7 @@
             pictureBox1.Anchor = AnchorStyles.Top;
             pictureBox1.BackColor = Color.Transparent;
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(287, 0);
+            pictureBox1.Location = new Point(281, 30);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(445, 138);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -235,7 +238,7 @@
             Cb_Empacador.ForeColor = Color.Black;
             Cb_Empacador.FormattingEnabled = true;
             Cb_Empacador.ItemHeight = 23;
-            Cb_Empacador.Location = new Point(375, 167);
+            Cb_Empacador.Location = new Point(380, 190);
             Cb_Empacador.MaxDropDownItems = 6;
             Cb_Empacador.Name = "Cb_Empacador";
             Cb_Empacador.Size = new Size(469, 31);
@@ -251,7 +254,7 @@
             Lbhora.BackColor = Color.Transparent;
             Lbhora.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             Lbhora.ForeColor = Color.WhiteSmoke;
-            Lbhora.Location = new Point(8, 3);
+            Lbhora.Location = new Point(868, 30);
             Lbhora.Name = "Lbhora";
             Lbhora.Size = new Size(15, 17);
             Lbhora.TabIndex = 13;
@@ -271,7 +274,7 @@
             LbFecha.BackColor = Color.Transparent;
             LbFecha.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
             LbFecha.ForeColor = Color.WhiteSmoke;
-            LbFecha.Location = new Point(8, 20);
+            LbFecha.Location = new Point(746, 60);
             LbFecha.Name = "LbFecha";
             LbFecha.Size = new Size(15, 17);
             LbFecha.TabIndex = 14;
@@ -443,7 +446,7 @@
             label2.CausesValidation = false;
             label2.Font = new Font("Verdana", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             label2.ForeColor = Color.White;
-            label2.Location = new Point(189, 141);
+            label2.Location = new Point(181, 157);
             label2.Name = "label2";
             label2.Size = new Size(134, 16);
             label2.TabIndex = 29;
@@ -456,7 +459,7 @@
             label3.BackColor = Color.Transparent;
             label3.Font = new Font("Verdana", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             label3.ForeColor = Color.White;
-            label3.Location = new Point(495, 141);
+            label3.Location = new Point(494, 157);
             label3.Name = "label3";
             label3.Size = new Size(126, 16);
             label3.TabIndex = 30;
@@ -469,7 +472,7 @@
             label4.BackColor = Color.Transparent;
             label4.Font = new Font("Verdana", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(227, 211);
+            label4.Location = new Point(228, 236);
             label4.Name = "label4";
             label4.Size = new Size(53, 16);
             label4.TabIndex = 31;
@@ -481,7 +484,7 @@
             Pb_Add.BackColor = Color.Transparent;
             Pb_Add.Cursor = Cursors.Hand;
             Pb_Add.Image = (Image)resources.GetObject("Pb_Add.Image");
-            Pb_Add.Location = new Point(36, 77);
+            Pb_Add.Location = new Point(36, 112);
             Pb_Add.Name = "Pb_Add";
             Pb_Add.Size = new Size(62, 61);
             Pb_Add.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -495,7 +498,7 @@
             label5.AutoSize = true;
             label5.BackColor = Color.Transparent;
             label5.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
-            label5.Location = new Point(8, 53);
+            label5.Location = new Point(8, 79);
             label5.Name = "label5";
             label5.Size = new Size(134, 21);
             label5.TabIndex = 34;
@@ -555,11 +558,12 @@
             // 
             label14.Anchor = AnchorStyles.Top;
             label14.AutoSize = true;
-            label14.Location = new Point(922, 5);
+            label14.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            label14.Location = new Point(771, 32);
             label14.Name = "label14";
-            label14.Size = new Size(72, 15);
+            label14.Size = new Size(78, 15);
             label14.TabIndex = 36;
-            label14.Text = "Versión 1.0.3";
+            label14.Text = "Versión 1.0.7";
             // 
             // label10
             // 
@@ -572,6 +576,8 @@
             // tabPage2
             // 
             tabPage2.BackColor = Color.DimGray;
+            tabPage2.Controls.Add(Check);
+            tabPage2.Controls.Add(TxtCodigo2);
             tabPage2.Controls.Add(pictureBox12);
             tabPage2.Controls.Add(ImagenCodigo2);
             tabPage2.Controls.Add(label6);
@@ -584,6 +590,31 @@
             tabPage2.Size = new Size(1000, 585);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Cenefa Almacén";
+            // 
+            // Check
+            // 
+            Check.Anchor = AnchorStyles.Top;
+            Check.AutoSize = true;
+            Check.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
+            Check.Location = new Point(679, 216);
+            Check.Name = "Check";
+            Check.Size = new Size(78, 25);
+            Check.TabIndex = 34;
+            Check.Text = "Rango";
+            Check.UseVisualStyleBackColor = true;
+            Check.CheckedChanged += Check_CheckedChanged;
+            // 
+            // TxtCodigo2
+            // 
+            TxtCodigo2.Anchor = AnchorStyles.Top;
+            TxtCodigo2.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
+            TxtCodigo2.Location = new Point(404, 280);
+            TxtCodigo2.Name = "TxtCodigo2";
+            TxtCodigo2.Size = new Size(234, 33);
+            TxtCodigo2.TabIndex = 35;
+            TxtCodigo2.Visible = false;
+            TxtCodigo2.KeyDown += TxtCodigo2_KeyDown;
+            TxtCodigo2.KeyPress += TxtCodigo2_KeyPress;
             // 
             // pictureBox12
             // 
@@ -627,10 +658,10 @@
             BtnImprimirCenefa.FlatStyle = FlatStyle.Flat;
             BtnImprimirCenefa.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             BtnImprimirCenefa.ForeColor = Color.Black;
-            BtnImprimirCenefa.Location = new Point(702, 201);
+            BtnImprimirCenefa.Location = new Point(808, 201);
             BtnImprimirCenefa.Name = "BtnImprimirCenefa";
             BtnImprimirCenefa.Size = new Size(144, 54);
-            BtnImprimirCenefa.TabIndex = 35;
+            BtnImprimirCenefa.TabIndex = 36;
             BtnImprimirCenefa.Text = "Imprimir";
             BtnImprimirCenefa.UseVisualStyleBackColor = false;
             BtnImprimirCenefa.Click += BtnImprimirCenefa_Click;
@@ -910,6 +941,10 @@
             // 
             Print_Amazon.PrintPage += Print_Amazon_PrintPage;
             // 
+            // printDocument3
+            // 
+            printDocument3.PrintPage += printDocument3_PrintPage;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1027,5 +1062,8 @@
         private NumericUpDown Num_Amazon;
         private System.Drawing.Printing.PrintDocument Print_Amazon;
         private Label label14;
+        private CheckBox Check;
+        private TextBox TxtCodigo2;
+        private System.Drawing.Printing.PrintDocument printDocument3;
     }
 }

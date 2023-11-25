@@ -15,4 +15,28 @@ namespace FireBird.Models
         public string Factura { get; set; }
         public int Bultos { get; set; }
     }
+    public class GlobalSettings
+    {
+        private static GlobalSettings instance;
+        //VARIABLES
+        public string Clave_articulo_id { get; set; }
+        public string Descripcion { get; set; }
+
+        public static GlobalSettings Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new GlobalSettings();
+                }
+                return instance;
+            }
+        }
+        public class Articulo
+        {
+            public string Codigo { get; set; }
+            public string Descripcion { get; set; }
+        }
+    }
 }

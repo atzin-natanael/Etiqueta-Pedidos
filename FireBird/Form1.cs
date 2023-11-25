@@ -23,12 +23,15 @@ using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Font = System.Drawing.Font;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
+using static FireBird.Models.GlobalSettings;
 
 namespace FireBird
 {
     public partial class Form1 : Form
     {
         //CENEFA
+        List<Articulo> Articulos = new();
         string Codigo;
         int oficial_codigo;
         int oficial_rol;
@@ -81,7 +84,6 @@ namespace FireBird
         {
             nombresArray.Clear();
             nombresValor.Clear();
-
             string filePath = "\\\\192.168.0.2\\C$\\clavesSurtido\\Claves.xlsx";
             using (SLDocument documento = new SLDocument(filePath))
             {
@@ -466,9 +468,9 @@ namespace FireBird
                         // Iterar sobre los registros y mostrar los valores
                         while (reader11.Read())
                         {
-                            string columna11 = reader11.GetString(1);
+                            string columna11 = reader11.GetString(0);
                             string ruta2 = reader11.GetString(25);
-                            if (columna11 == columnacliente)
+                            if (columna11 == columnaciudad)
                             {
                                 columnadescripcion = ruta2;
                                 break;
@@ -504,10 +506,10 @@ namespace FireBird
                             decimal importe = reader.GetDecimal(26);
                             condicion = reader.GetString(37);
                             string columna5 = reader.GetString(4); // Ejemplo de acceso por índice (0 representa la primera columna)
-                            if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'A'))
-                            {
-                                return;
-                            }
+                            //if ((Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'C' && Buscar_Folio[1] is not 'F') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'E') || (Buscar_Folio[0] is not 'P' && Buscar_Folio[1] is not 'A'))
+                            //{
+                            //    return;
+                            //}
                             if (columna5 == Buscar_Folio)
                             {
                                 string fact = columna5;
@@ -623,8 +625,11 @@ namespace FireBird
                     TxtFolio.Text = string.Empty;
                     Cb_Empacador.Text = string.Empty;
                     TxtFolio.Select();
-                    con.Close();
                     return;
+                }
+                finally
+                {
+                    con.Close();
                 }
                 /*
                 void Codigo_Barras()
@@ -854,187 +859,278 @@ namespace FireBird
         {
             if (TxtCodigo.Text != string.Empty)
             {
-                if (TxtCodigo.Text.Length > 6)
+                if (!Check.Checked)
                 {
-                    FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
-                    try
+
+                    if (TxtCodigo.Text.Length > 6)
                     {
-                        Codigo = TxtCodigo.Text;
-                        con.Open();
-                        string query = "SELECT * FROM CLAVES_ARTICULOS ORDER BY CLAVE_ARTICULO_ID";
-                        FbCommand command = new FbCommand(query, con);
-
-                        // Objeto para leer los datos obtenidos
-                        FbDataReader reader = command.ExecuteReader();
-                        bool encontrado2 = false;
-                        //oficial_codigo = Cb_Empacador.Text;
-                        //oficial_bultos = int.Parse(TxtBultos.Text);
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader.Read())
+                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        try
                         {
-                            // Acceder a los valores de cada columna por su índice o nombre
-                            int temp = reader.GetInt32(2);
-                            string col2 = reader.GetString(1);
-                            int rol = reader.GetInt32(3);
-                            if (Codigo == col2)
+                            Codigo = TxtCodigo.Text;
+                            con.Open();
+                            string query = "SELECT * FROM CLAVES_ARTICULOS ORDER BY CLAVE_ARTICULO_ID";
+                            FbCommand command = new FbCommand(query, con);
+
+                            // Objeto para leer los datos obtenidos
+                            FbDataReader reader = command.ExecuteReader();
+                            bool encontrado2 = false;
+                            //oficial_codigo = Cb_Empacador.Text;
+                            //oficial_bultos = int.Parse(TxtBultos.Text);
+                            // Iterar sobre los registros y mostrar los valores
+                            while (reader.Read())
                             {
-                                oficial_codigo = temp;
-                                encontrado2 = true;
-                                break;
+                                // Acceder a los valores de cada columna por su índice o nombre
+                                int temp = reader.GetInt32(2);
+                                string col2 = reader.GetString(1);
+                                int rol = reader.GetInt32(3);
+                                if (Codigo == col2)
+                                {
+                                    oficial_codigo = temp;
+                                    encontrado2 = true;
+                                    break;
+                                }
                             }
-                        }
-                        reader.Close();
-                        string query2 = "SELECT * FROM CLAVES_ARTICULOS ORDER BY ROL_CLAVE_ART_ID ASC";
-                        FbCommand command2 = new FbCommand(query2, con);
-                        FbDataReader reader2 = command2.ExecuteReader();
+                            reader.Close();
+                            string query2 = "SELECT * FROM CLAVES_ARTICULOS ORDER BY ROL_CLAVE_ART_ID ASC";
+                            FbCommand command2 = new FbCommand(query2, con);
+                            FbDataReader reader2 = command2.ExecuteReader();
 
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader2.Read())
-                        {
-                            int columnaclave = reader2.GetInt32(2);
-                            int rol = reader2.GetInt32(3);
-                            string codigotemp = reader2.GetString(1);
-
-                            if (columnaclave == oficial_codigo && rol == 17)
+                            // Iterar sobre los registros y mostrar los valores
+                            while (reader2.Read())
                             {
-                                Codigo_nuevo = int.Parse(codigotemp);
-                                Codigo = Codigo_nuevo.ToString();
-                                break;
+                                int columnaclave = reader2.GetInt32(2);
+                                int rol = reader2.GetInt32(3);
+                                string codigotemp = reader2.GetString(1);
+
+                                if (columnaclave == oficial_codigo && rol == 17)
+                                {
+                                    Codigo_nuevo = int.Parse(codigotemp);
+                                    Codigo = Codigo_nuevo.ToString();
+                                    break;
+                                }
                             }
-                        }
 
-                        reader2.Close();
-                        string query3 = "SELECT * FROM ARTICULOS ORDER BY ARTICULO_ID";
-                        FbCommand command3 = new FbCommand(query3, con);
-                        FbDataReader reader3 = command3.ExecuteReader();
+                            reader2.Close();
+                            string query3 = "SELECT * FROM ARTICULOS ORDER BY ARTICULO_ID";
+                            FbCommand command3 = new FbCommand(query3, con);
+                            FbDataReader reader3 = command3.ExecuteReader();
 
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader3.Read())
-                        {
-                            int columna11 = reader3.GetInt32(0);
-                            string descripcion = reader3.GetString(1);
-                            if (columna11 == oficial_codigo)
+                            // Iterar sobre los registros y mostrar los valores
+                            while (reader3.Read())
                             {
-                                oficial_desc = descripcion;
-                                Codigo_Barras();
-                                break;
+                                int columna11 = reader3.GetInt32(0);
+                                string descripcion = reader3.GetString(1);
+                                if (columna11 == oficial_codigo)
+                                {
+                                    oficial_desc = descripcion;
+                                    Codigo_Barras();
+                                    break;
+                                }
                             }
+
+                            reader3.Close();
+                            if (encontrado2 == false)
+                            {
+                                MessageBox.Show("CÓDIGO NO ENCONTRADO", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            void Codigo_Barras()
+                            {
+                                Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
+                                Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
+                                ImagenCodigo2.Image = mGeneradorCB.Draw(Codigo_nuevo.ToString(), 120);
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.ToString());
+                        }
+                        finally
+                        {
+                            con.Close();
+                        }
+                        printDialog1.Document = printDocument2;
+                        if (printDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            printDocument2.Print();
+                            TxtCodigo.Text = string.Empty;
+                            TxtCodigo.Select();
+
+                        }
+                        else
+                        {
+                            TxtCodigo.Text = string.Empty;
+                            TxtCodigo.Select();
+                        }
+                    } // CODIGO DE BARRAS
+                    else
+                    {
+                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        try
+                        {
+                            // Crear un nuevo hilo y asignarle un método que se ejecutará en paralelo
+                            Thread hilo = new Thread(Codigo_Barras);
+                            // Iniciar la ejecución del hilo
+                            Codigo = TxtCodigo.Text;
+                            hilo.Start();
+                            con.Open();
+                            string query = "SELECT * FROM CLAVES_ARTICULOS ORDER BY CLAVE_ARTICULO_ID";
+                            FbCommand command = new FbCommand(query, con);
+
+                            // Objeto para leer los datos obtenidos
+                            FbDataReader reader = command.ExecuteReader();
+                            bool encontrado = false;
+                            //oficial_codigo = Cb_Empacador.Text;
+                            //oficial_bultos = int.Parse(TxtBultos.Text);
+                            // Iterar sobre los registros y mostrar los valores
+                            while (reader.Read())
+                            {
+                                // Acceder a los valores de cada columna por su índice o nombre
+                                int temp = reader.GetInt32(2);
+                                string col2 = reader.GetString(1);
+                                if (Codigo == col2)
+                                {
+                                    oficial_codigo = temp;
+                                    encontrado = true;
+                                    break;
+                                }
+                            }
+                            if (encontrado == false)
+                            {
+                                MessageBox.Show("CÓDIGO NO ENCONTRADO", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            reader.Close();
+                            hilo.Join();
+                            string query2 = "SELECT * FROM ARTICULOS ORDER BY ARTICULO_ID";
+                            FbCommand command2 = new FbCommand(query2, con);
+                            FbDataReader reader2 = command2.ExecuteReader();
+
+                            // Iterar sobre los registros y mostrar los valores
+                            while (reader2.Read())
+                            {
+                                int columna11 = reader2.GetInt32(0);
+                                string descripcion = reader2.GetString(1);
+                                if (columna11 == oficial_codigo)
+                                {
+                                    oficial_desc = descripcion;
+                                    break;
+                                }
+                            }
+
+                            reader2.Close();
                         }
 
-                        reader3.Close();
-                        if (encontrado2 == false)
+
+
+                        catch (Exception ex)
                         {
-                            MessageBox.Show("CÓDIGO NO ENCONTRADO", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
+                            MessageBox.Show(ex.ToString());
+                        }
+                        finally
+                        {
+                            con.Close();
                         }
                         void Codigo_Barras()
                         {
                             Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
                             Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
-                            ImagenCodigo2.Image = mGeneradorCB.Draw(Codigo_nuevo.ToString(), 120);
+                            ImagenCodigo2.Image = mGeneradorCB.Draw(Codigo.ToString(), 120);
                         }
+                        printDialog1.Document = printDocument2;
+                        if (printDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            printDocument2.Print();
+                            TxtCodigo.Text = string.Empty;
+                            TxtCodigo.Select();
 
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.ToString());
-                    }
-                    printDialog1.Document = printDocument2;
-                    if (printDialog1.ShowDialog() == DialogResult.OK)
-                    {
-                        printDocument2.Print();
-                        TxtCodigo.Text = string.Empty;
-                        TxtCodigo.Select();
-
-                    }
-                    else
-                    {
-                        TxtCodigo.Text = string.Empty;
-                        TxtCodigo.Select();
+                        }
+                        else
+                        {
+                            TxtCodigo.Text = string.Empty;
+                            TxtCodigo.Select();
+                        }
                     }
                 }
                 else
                 {
-                    FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
-                    try
+                    if (TxtCodigo.Text != string.Empty && TxtCodigo2.Text != string.Empty)
                     {
-                        // Crear un nuevo hilo y asignarle un método que se ejecutará en paralelo
-                        Thread hilo = new Thread(Codigo_Barras);
-                        // Iniciar la ejecución del hilo
-                        Codigo = TxtCodigo.Text;
-                        hilo.Start();
-                        con.Open();
-                        string query = "SELECT * FROM CLAVES_ARTICULOS ORDER BY CLAVE_ARTICULO_ID";
-                        FbCommand command = new FbCommand(query, con);
-
-                        // Objeto para leer los datos obtenidos
-                        FbDataReader reader = command.ExecuteReader();
-                        bool encontrado = false;
-                        //oficial_codigo = Cb_Empacador.Text;
-                        //oficial_bultos = int.Parse(TxtBultos.Text);
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader.Read())
+                        if (int.Parse(TxtCodigo.Text) > int.Parse(TxtCodigo2.Text))
                         {
-                            // Acceder a los valores de cada columna por su índice o nombre
-                            int temp = reader.GetInt32(2);
-                            string col2 = reader.GetString(1);
-                            if (Codigo == col2)
-                            {
-                                oficial_codigo = temp;
-                                encontrado = true;
-                                break;
-                            }
-                        }
-                        if (encontrado == false)
-                        {
-                            MessageBox.Show("CÓDIGO NO ENCONTRADO", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Orden Incorrecto", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
-
-                        reader.Close();
-                        hilo.Join();
-                        string query2 = "SELECT * FROM ARTICULOS ORDER BY ARTICULO_ID";
-                        FbCommand command2 = new FbCommand(query2, con);
-                        FbDataReader reader2 = command2.ExecuteReader();
-
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader2.Read())
+                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        try
                         {
-                            int columna11 = reader2.GetInt32(0);
-                            string descripcion = reader2.GetString(1);
-                            if (columna11 == oficial_codigo)
+                            con.Open();
+                            string query101 = "SELECT * FROM CLAVES_ARTICULOS WHERE CLAVE_ARTICULO BETWEEN '" + TxtCodigo.Text + "' AND '" + TxtCodigo2.Text + "'  ORDER BY CLAVE_ARTICULO ASC";
+                            FbCommand command1 = new FbCommand(query101, con);
+                            FbDataReader reader101 = command1.ExecuteReader();
+                            while (reader101.Read())
                             {
-                                oficial_desc = descripcion;
-                                break;
+                                string tamanio = reader101.GetString(1);
+                                int tam = tamanio.Length;
+                                if (tam == 6)
+                                {
+                                    GlobalSettings.Instance.Clave_articulo_id = reader101.GetString(2);
+                                    Query2();
+
+                                    Articulo variables = new Articulo
+                                    {
+                                        Codigo = reader101.GetString(1),
+                                        Descripcion = GlobalSettings.Instance.Descripcion
+
+                                    };
+                                    Articulos.Add(variables);
+                                }
+
                             }
+                            reader101.Close();
+                            if (Articulos.Count >= 20)
+                            {
+                                DialogResult resultado2 = MessageBox.Show("ESTÁS SEGURO QUE DESEAS IMPRIMIR" + "\n" + Articulos.Count + "\n" + "ETIQUETAS ", "ADVERTENCIA", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                                if (resultado2 == DialogResult.Cancel)
+                                {
+                                    //TxtCodigo.Text = string.Empty;
+                                    //TxtCodigo2.Text = string.Empty;                                 
+                                    TxtCodigo.Focus();
+                                    Articulos.Clear();
+                                    return;
+                                }
+                            }
+                            printDialog1.Document = printDocument3;
+                            if (printDialog1.ShowDialog() == DialogResult.OK)
+                            {
+                                printDocument3.Print();
+                                Articulos.Clear();
+                            }
+                            else
+                            {
+                                Articulos.Clear();
+                            }
+
                         }
-
-                        reader2.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.ToString());
-                    }
-
-                    void Codigo_Barras()
-                    {
-                        Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
-                        Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
-                        ImagenCodigo2.Image = mGeneradorCB.Draw(Codigo.ToString(), 120);
-                    }
-                    printDialog1.Document = printDocument2;
-                    if (printDialog1.ShowDialog() == DialogResult.OK)
-                    {
-                        printDocument2.Print();
-                        TxtCodigo.Text = string.Empty;
-                        TxtCodigo.Select();
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Se perdió la conexión :( , contacta a 06 o intenta de nuevo", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(ex.ToString());
+                            return;
+                        }
+                        finally
+                        {
+                            con.Close();
+                        }
 
                     }
                     else
                     {
-                        TxtCodigo.Text = string.Empty;
-                        TxtCodigo.Select();
+                        MessageBox.Show("Campos vacíos", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -1043,15 +1139,51 @@ namespace FireBird
                 MessageBox.Show("Aún no has llenado todos los campos", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             TxtCodigo.Text = string.Empty;
+            TxtCodigo2.Text = string.Empty;
+            TxtCodigo.Focus();
         }
+        public void Query2()
+        {
+            FbConnection con2 = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+            try
+            {
+                con2.Open();
+                string query2 = "SELECT * FROM ARTICULOS WHERE ARTICULO_ID = '" + GlobalSettings.Instance.Clave_articulo_id + "'";
+                FbCommand command2 = new FbCommand(query2, con2);
+                FbDataReader reader102 = command2.ExecuteReader();
+                if (reader102.Read())
+                {
+                    GlobalSettings.Instance.Descripcion = reader102.GetString(1);
+                }
+                reader102.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Se perdió la conexión :( , contacta a 06 o intenta de nuevo", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.ToString());
+                return;
+            }
+            finally
+            {
+                con2.Close();
+            }
 
+        }
         private void TxtCodigo_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true;
-                BtnImprimirCenefa.Focus();
+                if (!Check.Checked)
+                {
+                    BtnImprimirCenefa.Focus();
+                }
+                else
+                {
+                    e.SuppressKeyPress = true;
+                    TxtCodigo2.Focus();
+                }
             }
+
         }
 
         private void TxtCodigo_KeyPress(object sender, KeyPressEventArgs e)
@@ -1070,12 +1202,12 @@ namespace FireBird
             {
                 e.Graphics.DrawString(Codigo, font, Brushes.Black, new PointF(0, 0));
             }
-            using (Font font = new Font("Arial", 12, FontStyle.Bold))
+            using (Font font = new Font("Arial", 16, FontStyle.Bold))
             {
                 Rectangle DestinationRectangle = new Rectangle(0, 100, 410, 160);
                 using (StringFormat sf = new StringFormat())
                 {
-                    e.Graphics.DrawString(oficial_desc, new Font("Arial", 15, FontStyle.Bold), Brushes.Black, DestinationRectangle, sf);
+                    e.Graphics.DrawString(oficial_desc, new Font("Arial", 16, FontStyle.Bold), Brushes.Black, DestinationRectangle, sf);
                 }
 
             }
@@ -1188,6 +1320,106 @@ namespace FireBird
         private void Num_Amazon_Click(object sender, EventArgs e)
         {
             Num_Amazon.Select(0, Num_Amazon.Text.Length);
+        }
+
+        private void Check_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Check.Checked)
+            {
+                TxtCodigo2.Visible = true;
+            }
+            else if (!Check.Checked)
+            {
+                TxtCodigo2.Visible = false;
+            }
+        }
+        private int paginaActual = 0;
+        private void printDocument3_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            while (paginaActual < Articulos.Count)
+            {
+                // Limpia el lienzo antes de imprimir la página actual
+                e.Graphics.Clear(System.Drawing.Color.White); // Puedes cambiar el color de fondo según tus necesidades
+
+                var articulo = Articulos[paginaActual];
+                // Imprimir los datos del artículo en esta página
+                using (Font font = new Font("Arial", 75, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString(articulo.Codigo, font, Brushes.Black, new PointF(0, 0));
+                }
+                using (Font font = new Font("Arial", 16, FontStyle.Bold))
+                {
+                    Rectangle DestinationRectangle = new Rectangle(0, 100, 410, 160);
+                    using (StringFormat sf = new StringFormat())
+                    {
+                        e.Graphics.DrawString(articulo.Descripcion, new Font("Arial", 16, FontStyle.Bold), Brushes.Black, DestinationRectangle, sf);
+                    }
+
+                }
+
+                // Image image = Image.FromFile("C:\\Datos_Surtido\\coriba.png");
+                //e.Graphics.DrawImage(image, new PointF(0, 160));
+                Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
+                Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
+                ImagenCodigo2.Image = mGeneradorCB.Draw(articulo.Codigo, 120);
+
+                Bitmap bm = new Bitmap(ImagenCodigo2.Width, ImagenCodigo2.Height);
+                ImagenCodigo2.DrawToBitmap(bm, new Rectangle(0, 0, ImagenCodigo2.Width, ImagenCodigo2.Height));
+                e.Graphics.DrawImage(bm, 130, 180);
+                bm.Dispose();
+
+                paginaActual++;
+
+                // Si quedan más artículos, indica que hay más páginas
+                if (paginaActual < Articulos.Count)
+                {
+                    e.HasMorePages = true;
+                }
+                else
+                {
+                    e.HasMorePages = false; // No hay más páginas para imprimir
+                    paginaActual = 0; // Restablece la página actual para futuras impresiones
+                }
+
+                return; // Sale del evento de impresión para imprimir la página actual
+            }
+        }
+
+        private void TxtCodigo2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back) && (e.KeyChar != (char)Keys.Enter))
+            {
+                MessageBox.Show("Solo se permiten Números", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void TxtCodigo2_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+
+                e.SuppressKeyPress = true;
+                BtnImprimirCenefa.Focus();
+
+
+            }
+        }
+
+        private void conexiónToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ubicaciToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dMicrosipDatosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
