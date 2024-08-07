@@ -40,6 +40,7 @@ namespace FireBird
         int Codigo_nuevo;
         //MAIN
         int contador_amazon;
+        int contador_ml;
         DateTime fechaActual = DateTime.Now;
         string columnadescripcion;
         string condicion;
@@ -52,8 +53,11 @@ namespace FireBird
         int oficial_bultos;
         string oficial_empacador;
         string oficial_cliente;
+        string clave_cliente;
         string oficial_factura;
         string oficial_condicion;
+        string oficial_estatus;
+        string columna1;
         decimal oficial_importe;
         string columnaciudad;
         string Current_Surtidor;
@@ -76,6 +80,7 @@ namespace FireBird
             CrearExcel();
             Leer_Datos();
             Cb_Empacador.SelectedIndex = -1;
+            Cb_tamanio.SelectedIndex = 0;
             Add = new Agregar();
             Cb_Empacador.DropDownHeight = 250;
             Cb_Amazon.SelectedIndex = 0;
@@ -267,46 +272,110 @@ namespace FireBird
         private void printDocument1_PrintPage(object sender, PrintPageEventArgs e)
         {
             DateTime Actual = DateTime.Now;
+            if (Buscar_Folio[1] == 'F' || Buscar_Folio[1] == 'O' || Buscar_Folio[1] == 'E' || Buscar_Folio[1] == 'M' || Buscar_Folio[1] == 'A')
+            {
+                string prefix = Buscar_Folio.Substring(0, 2);
+                string suffix = Buscar_Folio.Substring(2);
+                int contador = 0;
+                for (int p = 0; p < suffix.Count(); p++)
+                {
+                    if (suffix[p] == '0')
+                    {
+                        contador++;
+                    }
+                    else
+                        break;
+                }
+                suffix = suffix.Substring(contador);
+                Buscar_Folio = prefix + suffix;
+            }
             int id = contador + 1;
-            using (Font font = new Font("Arial", 8))
+            if (Cb_tamanio.Text == "Grande")
             {
-                e.Graphics.DrawString(Actual.ToString().ToUpper(), font, Brushes.Black, new PointF(0, 0));
-            }
-            using (Font font = new Font("Arial", 55, FontStyle.Bold))
-            {
-                e.Graphics.DrawString(oficial_factura, font, Brushes.Black, new PointF(0, 0));
-            }
-            using (Font font = new Font("Arial", 12, FontStyle.Bold))
-            {
-                e.Graphics.DrawString("RUTA: " + oficial_ciudad, font, Brushes.Black, new PointF(0, 80));
-            }
-            using (Font font = new Font("Arial", 12))
-            {
-                e.Graphics.DrawString("LOCALIDAD: " + oficial_poblacion, font, Brushes.Black, new PointF(0, 100));
-            }
-            using (Font font = new Font("Arial", 12, FontStyle.Bold))
-            {
-                e.Graphics.DrawString("CLIENTE: " + oficial_cliente, font, Brushes.Black, new PointF(0, 120));
-            }
-            using (Font font = new Font("Arial", 12))
-            {
-                e.Graphics.DrawString("EMPACADOR: " + oficial_empacador, font, Brushes.Black, new PointF(0, 140));
-            }
-            using (Font font = new Font("Arial", 16, FontStyle.Bold))
-            {
-                e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(140, 230));
-            }
-            // Puedes dibujar imágenes de la misma manera:
-            Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
-            e.Graphics.DrawImage(image, new PointF(0, 160));
-            Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
-            Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
-            Imagen_Codigo.Image = mGeneradorCB.Draw(Buscar_Folio, 120);
 
-            Bitmap bm = new Bitmap(Imagen_Codigo.Width, Imagen_Codigo.Height);
-            Imagen_Codigo.DrawToBitmap(bm, new Rectangle(0, 0, Imagen_Codigo.Width, Imagen_Codigo.Height));
-            e.Graphics.DrawImage(bm, 140, 160);
-            bm.Dispose();
+                using (Font font = new Font("Arial", 8))
+                {
+                    e.Graphics.DrawString(Actual.ToString().ToUpper(), font, Brushes.Black, new PointF(0, 0));
+                }
+                using (Font font = new Font("Arial", 55, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString(Buscar_Folio, font, Brushes.Black, new PointF(0, 0));
+                }
+                using (Font font = new Font("Arial", 12, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("RUTA: " + oficial_ciudad, font, Brushes.Black, new PointF(0, 80));
+                }
+                using (Font font = new Font("Arial", 12))
+                {
+                    e.Graphics.DrawString("LOCALIDAD: " + oficial_poblacion, font, Brushes.Black, new PointF(0, 100));
+                }
+                using (Font font = new Font("Arial", 12, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("CLIENTE: " + oficial_cliente, font, Brushes.Black, new PointF(0, 120));
+                }
+                using (Font font = new Font("Arial", 12))
+                {
+                    e.Graphics.DrawString("EMPACADOR: " + oficial_empacador, font, Brushes.Black, new PointF(0, 140));
+                }
+                using (Font font = new Font("Arial", 16, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(140, 230));
+                }
+                // Puedes dibujar imágenes de la misma manera:
+                Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
+                e.Graphics.DrawImage(image, new PointF(0, 160));
+
+                Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
+                Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
+                Imagen_Codigo.Image = mGeneradorCB.Draw(Buscar_Folio+"-"+id, 120);
+
+                Bitmap bm = new Bitmap(Imagen_Codigo.Width, Imagen_Codigo.Height);
+                Imagen_Codigo.DrawToBitmap(bm, new Rectangle(0, 0, Imagen_Codigo.Width, Imagen_Codigo.Height));
+                e.Graphics.DrawImage(bm, 140, 160);
+                bm.Dispose();
+            }
+            else
+            {
+                using (Font font = new Font("Arial", 7))
+                {
+                    e.Graphics.DrawString(Actual.ToString().ToUpper(), font, Brushes.Black, new PointF(5, 0));
+                }
+                using (Font font = new Font("Arial", 40, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString(oficial_factura, font, Brushes.Black, new PointF(65, 0));
+                }
+                using (Font font = new Font("Arial", 11, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("RUTA: " + oficial_ciudad, font, Brushes.Black, new PointF(5, 55));
+                }
+                using (Font font = new Font("Arial", 11))
+                {
+                    e.Graphics.DrawString("LOCALIDAD: " + oficial_poblacion, font, Brushes.Black, new PointF(5, 75));
+                }
+                using (Font font = new Font("Arial", 11, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("CLIENTE: " + oficial_cliente, font, Brushes.Black, new PointF(5, 95));
+                }
+                using (Font font = new Font("Arial", 11))
+                {
+                    e.Graphics.DrawString("EMPACADOR: " + oficial_empacador, font, Brushes.Black, new PointF(5, 115));
+                }
+                using (Font font = new Font("Arial", 13, FontStyle.Bold))
+                {
+                    e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(180, 180));
+                }
+                // Puedes dibujar imágenes de la misma manera:
+                Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
+                e.Graphics.DrawImage(image, new PointF(0, 135));
+                Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
+                Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
+                Img_med.Image = mGeneradorCB.Draw(Buscar_Folio, 120);
+
+                Bitmap bm = new Bitmap(Img_med.Width, Img_med.Height);
+                Img_med.DrawToBitmap(bm, new Rectangle(0, 0, Img_med.Width, Img_med.Height));
+                e.Graphics.DrawImage(bm, 160, 132);
+                bm.Dispose();
+            }
             contador++;
             e.HasMorePages = contador < oficial_bultos;
         }
@@ -320,11 +389,12 @@ namespace FireBird
 
         private void TimerMarque_Tick(object sender, EventArgs e)
         {
-            if (groupBox1.Right < 0 || (Math.Abs(groupBox1.Width) > groupBox1.Width))
+
+            if (pictureBox14.Right < 0 || (Math.Abs(pictureBox14.Width) > pictureBox14.Width))
             {
-                groupBox1.Left = this.Width;
+                pictureBox14.Left = this.Width;
             }
-            groupBox1.Left -= 1;
+            pictureBox14.Left -= 1;
 
         }
 
@@ -396,6 +466,7 @@ namespace FireBird
                         {
                             Existe = true;
                             int Bultos_repetidos2 = sl2.GetCellValueAsInt32("F" + t);
+
                             string Current_Surtidor2 = sl2.GetCellValueAsString("E" + t);
                             string hora_repetido = sl2.GetCellValueAsString("D" + t);
                             string fecha_repetido = sl2.GetCellValueAsString("C" + t);
@@ -440,6 +511,7 @@ namespace FireBird
                             string columna1 = reader0.GetString(0);
                             string columnafecha = reader0.GetString(5);
                             string fechacorta = columnafecha.Substring(0, 10);
+                            clave_cliente = reader0.GetString(8);
                             columnacliente = reader0.GetString(9);
                             string direccion = reader0.GetString(12);
                             decimal importe = reader0.GetDecimal(23);
@@ -457,7 +529,7 @@ namespace FireBird
                         }
                         if (encontrado == false)
                         {
-                            MessageBox.Show("FOLIO NO ENCONTRADO", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("c", "¡ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
@@ -482,9 +554,7 @@ namespace FireBird
 
                     else
                     {
-
-                        //string query = "SELECT * FROM DOCTOS_VE WHERE (FOLIO LIKE 'PF%' OR FOLIO LIKE 'PE%' OR FOLIO LIKE 'PA%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
-                        string query = "SELECT * FROM DOCTOS_VE WHERE FOLIO = '" + TxtFolio.Text + "' AND ESTATUS = 'N'";
+                        string query = "SELECT * FROM DOCTOS_VE WHERE FOLIO = '" + TxtFolio.Text + "' AND ESTATUS != 'C' AND TIPO_DOCTO != 'P';";
                         FbCommand command = new FbCommand(query, con);
 
                         // Objeto para leer los datos obtenidos
@@ -497,9 +567,10 @@ namespace FireBird
                         if (reader.Read())
                         {
                             // Acceder a los valores de cada columna por su índice o nombre
-                            string columna1 = reader.GetString(0);
+                            columna1 = reader.GetString(0);
                             string columnafecha = reader.GetString(5);
                             string fechacorta = columnafecha.Substring(0, 10);
+                            clave_cliente = reader.GetString(7);
                             columnacliente = reader.GetString(8);
                             columnaciudad = reader.GetString(10);
                             columnadescripcion = reader.GetString(42);
@@ -614,6 +685,7 @@ namespace FireBird
                     {
                         oficial_poblacion = "CIUDAD NO ASIGNADA";
                     }
+                    Validar();
 
                 }
                 catch (Exception ex)
@@ -666,6 +738,43 @@ namespace FireBird
                 MessageBox.Show("Aún no has llenado todos los campos", "¡Espera!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        public void Validar()
+        {
+            FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+            try
+            {
+                con.Open();
+                // Utiliza parámetros para evitar la inyección de SQL
+                string query8 = "UPDATE LIBRES_FAC_VE SET BULTOS = @UpdateValue, EMPACADOR = @Empacador  WHERE DOCTO_VE_ID = @FolioId";
+                FbCommand command8 = new FbCommand(query8, con);
+
+                // Agrega los parámetros
+                //VALOR DE UNIDADES A ACTUALIZAR
+                command8.Parameters.AddWithValue("@UpdateValue", TxtBultos.Text);
+                command8.Parameters.AddWithValue("@Empacador", Cb_Empacador.Text);
+                //VALOR DE FOLIO ID A EDITAR EN DOCTOS_VE_DET
+                command8.Parameters.AddWithValue("@FolioId", columna1);
+                // Ejecuta la consulta de actualización
+                int rowsAffected = command8.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    MessageBox.Show("No se pudo actualizar la factura", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Se perdió la conexión :( , contacta a 06 o intenta de nuevo", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.ToString());
+                return;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         public void Excel()
         {
 
@@ -696,6 +805,12 @@ namespace FireBird
                     if (columna == 4 || columna == 9)
                         sl.SetColumnWidth(columna, 15);
                 }
+                for (int i = 0; i < nombresArray.Count; ++i)
+                {
+                    if (nombresArray[i] == Current_Surtidor)
+                        oficial_estatus = nombresValor[i];
+
+                }
                 sl.SetCellValue("A" + t, t - 1);
                 sl.SetCellValue("B" + t, TxtFolio.Text);
                 sl.SetCellValue("C" + t, LbFecha.Text);
@@ -707,20 +822,27 @@ namespace FireBird
                 sl.SetCellValue("I" + t, oficial_ciudad);
                 sl.SetCellValue("J" + t, oficial_importe);
                 sl.SetCellValue("K" + t, oficial_condicion);
+                sl.SetCellValue("L" + t, oficial_estatus);
+                sl.SetCellValue("M" + t, clave_cliente);
                 sl.SaveAs(path);
                 if (nombresArray.Contains(Cb_Empacador.Text))
                 {
                     int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Cb_Empacador.Text));
-                    if (nombresValor[posicion] == "S")
+                    if (nombresValor[posicion] != "S")
                     {
-                        Promedio();
-                    }
-                    else
                         return;
+                    }
+                    Promedio();
                 }
             }
             else if (!fileExist)
             {
+                for (int i = 0; i < nombresArray.Count; ++i)
+                {
+                    if (nombresArray[i] == Cb_Empacador.Text)
+                        oficial_estatus = nombresValor[i];
+
+                }
                 SLDocument oSLDocument = new();
                 DataTable table = new();
                 string actual = oSLDocument.GetCurrentWorksheetName();
@@ -736,19 +858,20 @@ namespace FireBird
                 table.Columns.Add("Ruta", typeof(string));
                 table.Columns.Add("Importe", typeof(decimal));
                 table.Columns.Add("Condicion", typeof(string));
-                table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe, oficial_condicion);
+                table.Columns.Add("Estatus", typeof(string));
+                table.Columns.Add("Cliente Id", typeof(string));
+                table.Rows.Add(1, TxtFolio.Text, LbFecha.Text, Lbhora.Text, Cb_Empacador.Text, TxtBultos.Text, oficial_cliente, oficial_poblacion, oficial_ciudad, oficial_importe, oficial_condicion, oficial_estatus, clave_cliente);
                 oSLDocument.ImportDataTable(1, 1, table, true);
                 oSLDocument.SaveAs(path);
 
                 if (nombresArray.Contains(Cb_Empacador.Text))
                 {
                     int posicion = nombresArray.FindIndex(nombresArray => nombresArray.Contains(Cb_Empacador.Text));
-                    if (nombresValor[posicion] == "S")
+                    if (nombresValor[posicion] != "S")
                     {
-                        Promedio();
-                    }
-                    else
                         return;
+                    }
+                    Promedio();
                 }
             }
         }
@@ -1420,6 +1543,93 @@ namespace FireBird
         private void dMicrosipDatosToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void Btn_ML_Click(object sender, EventArgs e)
+        {
+            contador_ml = 0;
+            //printPreviewDialog1.Document = Print_Amazon;
+            //printPreviewDialog1.ShowDialog();
+            printDialog1.Document = Print_ML;
+            if (printDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Print_ML.Print();
+                Num_ML.Value = 1;
+            }
+            else
+            {
+                Num_ML.Value = 1;
+                Btn_ML.Select();
+            }
+        }
+        private void Print_ML_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            using (Font font = new Font("Arial", 30, FontStyle.Bold))
+            {
+                e.Graphics.DrawString("MERCADO LIBRE", font, Brushes.Black, new PointF(15, 0));
+            }
+            using (Font font = new Font("Arial", 45, FontStyle.Bold))
+            {
+                e.Graphics.DrawString("LOCAL", font, Brushes.Black, new PointF(10, 100));
+            }
+
+            Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
+            e.Graphics.DrawImage(image, new PointF(250, 85));
+
+            Pen pen = new Pen(System.Drawing.Color.Black, 2);
+            e.Graphics.DrawLine(pen, new System.Drawing.Point(30, 230), new System.Drawing.Point(350, 230));
+            contador_ml++;
+            e.HasMorePages = contador_ml < Num_ML.Value;
+        }
+
+        private void Btn_Fragil_Click(object sender, EventArgs e)
+        {
+            printDialog1.Document = Print_Fragil;
+            if (printDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Print_Fragil.Print();
+            }
+            else
+            {
+                Btn_Fragil.Select();
+            }
+        }
+
+        private void Print_Fragil_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            float widthMm = 100;
+            float heightMm = 65;
+
+            // Conversión de milímetros a pulgadas (25.4 mm por pulgada)
+            float widthInches = widthMm / 25.4f;
+            float heightInches = heightMm / 25.4f;
+
+            // Convertir pulgadas a píxeles con la resolución deseada (96 dpi)
+            int widthPixels = (int)(widthInches * 96);
+            int heightPixels = (int)(heightInches * 96);
+
+            // Cargar la imagen y ajustar su tamaño
+            Image image = Image.FromFile("C:\\Datos_Empaque\\fragil.jpg");
+            Image resizedImage = new Bitmap(image, widthPixels, heightPixels);
+
+            // Dibujar la imagen redimensionada
+            e.Graphics.DrawImage(resizedImage, 0, 0);
+        }
+
+        private void PF_Click(object sender, EventArgs e)
+        {
+            TxtFolio.Focus();
+            TxtFolio.Text = string.Empty;
+            TxtFolio.Text = "PF";
+            TxtFolio.SelectionStart = 2;
+        }
+
+        private void PC_Click(object sender, EventArgs e)
+        {
+            TxtFolio.Focus();
+            TxtFolio.Text = string.Empty;
+            TxtFolio.Text = "PC";
+            TxtFolio.SelectionStart = 2;
         }
     }
 }
