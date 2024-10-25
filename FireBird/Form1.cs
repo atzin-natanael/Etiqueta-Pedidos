@@ -25,6 +25,8 @@ using Font = System.Drawing.Font;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using static FireBird.Models.GlobalSettings;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using QRCoder;
 
 namespace FireBird
 {
@@ -77,6 +79,7 @@ namespace FireBird
         public Form1()
         {
             InitializeComponent();
+            Config();
             CrearExcel();
             Leer_Datos();
             Cb_Empacador.SelectedIndex = -1;
@@ -109,6 +112,32 @@ namespace FireBird
             Cb_Empacador.AutoCompleteSource = AutoCompleteSource.CustomSource;
             Cb_Empacador.AutoCompleteCustomSource.AddRange(nombresArray.ToArray());
             //Cb_Empacador.Text = "";
+        }
+        public void Config()
+        {
+            string filePath = "C:\\ConfigDB\\DB.txt"; // Ruta de tu archivo de texto
+            List<string> lineas = new List<string>();
+
+            // Verificar si el archivo existe
+            if (File.Exists(filePath))
+            {
+                // Leer todas las líneas del archivo
+                using (StreamReader sr = new StreamReader(filePath))
+                {
+                    string linea;
+                    while ((linea = sr.ReadLine()) != null)
+                    {
+                        GlobalSettings.Instance.Config.Add(linea);
+                    }
+
+                }
+                GlobalSettings.Instance.Ip = GlobalSettings.Instance.Config[0];
+                GlobalSettings.Instance.Puerto = GlobalSettings.Instance.Config[1];
+                GlobalSettings.Instance.Direccion = GlobalSettings.Instance.Config[2];
+                GlobalSettings.Instance.User = GlobalSettings.Instance.Config[3];
+                GlobalSettings.Instance.Pw = GlobalSettings.Instance.Config[4];
+            }
+
         }
         public void CrearExcel()
         {
@@ -272,10 +301,27 @@ namespace FireBird
         private void printDocument1_PrintPage(object sender, PrintPageEventArgs e)
         {
             DateTime Actual = DateTime.Now;
-            if (Buscar_Folio[1] == 'F' || Buscar_Folio[1] == 'O' || Buscar_Folio[1] == 'E' || Buscar_Folio[1] == 'M' || Buscar_Folio[1] == 'A')
+            if (Buscar_Folio[1] == 'F' || Buscar_Folio[1] == 'O' || Buscar_Folio[1] == 'E' || Buscar_Folio[1] == 'M' || Buscar_Folio[1] == 'A' || Buscar_Folio[1] == 'C' || Buscar_Folio[1] == 'L')
             {
                 string prefix = Buscar_Folio.Substring(0, 2);
                 string suffix = Buscar_Folio.Substring(2);
+                int contador = 0;
+                for (int p = 0; p < suffix.Count(); p++)
+                {
+                    if (suffix[p] == '0')
+                    {
+                        contador++;
+                    }
+                    else
+                        break;
+                }
+                suffix = suffix.Substring(contador);
+                Buscar_Folio = prefix + suffix;
+            }
+            else if (Buscar_Folio[0] == 'A' || Buscar_Folio[0] == 'B' || Buscar_Folio[0] == 'C' || Buscar_Folio[0] == 'D' || Buscar_Folio[0] == 'E' || Buscar_Folio[0] == 'F' || Buscar_Folio[0] == 'G' || Buscar_Folio[0] == 'H' || Buscar_Folio[0] == 'U')
+            {
+                string prefix = Buscar_Folio.Substring(0, 1);
+                string suffix = Buscar_Folio.Substring(1);
                 int contador = 0;
                 for (int p = 0; p < suffix.Count(); p++)
                 {
@@ -322,16 +368,38 @@ namespace FireBird
                     e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(140, 230));
                 }
                 // Puedes dibujar imágenes de la misma manera:
-                Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
-                e.Graphics.DrawImage(image, new PointF(0, 160));
+                Image image;
+                Image image2;
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(Buscar_Folio + "#" + id, QRCodeGenerator.ECCLevel.Q);
+
+                // Generar el código QR como imagen
+                QRCode qrCode = new QRCode(qrCodeData);
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                // Mostrar el código QR en el PictureBox
+                image = new Bitmap(qrCodeImage, new Size(100,100));
+                if ((Buscar_Folio[0] is 'I' && Buscar_Folio[1] is 'F'))
+                {
+                    image2 = Image.FromFile("C:\\Datos_Empaque\\isi3.png");
+                }
+                else
+                {
+                   image2 = Image.FromFile("C:\\Datos_Empaque\\logo2.png");
+                   e.Graphics.DrawImage(image2, new PointF(310, 160));
+
+                }
+                e.Graphics.DrawImage(image, new PointF(15, 160));
 
                 Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
                 Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
-                Imagen_Codigo.Image = mGeneradorCB.Draw(Buscar_Folio+"-"+id, 120);
+                //Imagen_Codigo.Image = mGeneradorCB.Draw(TxtFolio.Text, 120);
+                Imagen_Codigo.Image = mGeneradorCB.Draw(Buscar_Folio + "#" + id, 120);
 
                 Bitmap bm = new Bitmap(Imagen_Codigo.Width, Imagen_Codigo.Height);
                 Imagen_Codigo.DrawToBitmap(bm, new Rectangle(0, 0, Imagen_Codigo.Width, Imagen_Codigo.Height));
-                e.Graphics.DrawImage(bm, 140, 160);
+                e.Graphics.DrawImage(bm, 120, 160);
+                //e.Graphics.DrawImage(bm, 140, 160);
                 bm.Dispose();
             }
             else
@@ -365,12 +433,27 @@ namespace FireBird
                     e.Graphics.DrawString("BULTOS: " + id + " DE " + oficial_bultos, font, Brushes.Black, new PointF(180, 180));
                 }
                 // Puedes dibujar imágenes de la misma manera:
-                Image image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
-                e.Graphics.DrawImage(image, new PointF(0, 135));
+                Image image;
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(Buscar_Folio + "#" + id, QRCodeGenerator.ECCLevel.Q);
+
+                // Generar el código QR como imagen
+                QRCode qrCode = new QRCode(qrCodeData);
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                // Mostrar el código QR en el PictureBox
+                image = new Bitmap(qrCodeImage, new Size(70, 70));
+                //if ((Buscar_Folio[0] is 'I' && Buscar_Folio[1] is 'F'))
+                //{
+                //    image = Image.FromFile("C:\\Datos_Empaque\\isi3.png");
+                //}
+                //else
+                //    image = Image.FromFile("C:\\Datos_Empaque\\coriba.png");
+                e.Graphics.DrawImage(image, new PointF(0, 130));
                 Zen.Barcode.Code128BarcodeDraw mGeneradorCB =
                 Zen.Barcode.BarcodeDrawFactory.Code128WithChecksum;
-                Img_med.Image = mGeneradorCB.Draw(Buscar_Folio, 120);
-
+                //Img_med.Image = mGeneradorCB.Draw(TxtFolio.Text, 120);
+                Img_med.Image = mGeneradorCB.Draw(Buscar_Folio + "#" + id, 120);
                 Bitmap bm = new Bitmap(Img_med.Width, Img_med.Height);
                 Img_med.DrawToBitmap(bm, new Rectangle(0, 0, Img_med.Width, Img_med.Height));
                 e.Graphics.DrawImage(bm, 160, 132);
@@ -485,18 +568,22 @@ namespace FireBird
                         t++;
                     }
                 }
-                FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                Buscar_Folio = TxtFolio.Text;
+                if ((Buscar_Folio[0] is 'I' && Buscar_Folio[1] is 'F'))
+                {
+                    GlobalSettings.Instance.Direccion = "D:\\Microsip datos\\ISI OFFICE SA DE CV.fdb";
+                }
+                FbConnection con = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
                 try
                 {
                     // Crear un nuevo hilo y asignarle un método que se ejecutará en paralelo
                     // Iniciar la ejecución del hilo
-                    Buscar_Folio = TxtFolio.Text;
                     Current_Surtidor = Cb_Empacador.Text;
                     Current_Bultos = int.Parse(TxtBultos.Text);
                     con.Open();
-                    if ((Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'L') || (Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'C'))
+                    if ((Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'L') || (Buscar_Folio[0] is 'P' && Buscar_Folio[1] is 'C') || (Buscar_Folio[0] is 'A' ) || (Buscar_Folio[0] is 'B') || (Buscar_Folio[0] is 'C') || (Buscar_Folio[0] is 'D') || (Buscar_Folio[0] is 'E') || (Buscar_Folio[0] is 'F') || (Buscar_Folio[0] is 'G') || (Buscar_Folio[0] is 'H') || (Buscar_Folio[0] is 'U'))
                     {
-                        string query0 = "SELECT * FROM DOCTOS_PV WHERE (FOLIO LIKE 'PL%' OR FOLIO LIKE 'PC%') AND TIPO_DOCTO = 'F' ORDER BY FECHA DESC";
+                        string query0 = "SELECT * FROM DOCTOS_PV WHERE FOLIO = '" + TxtFolio.Text + "';";
                         FbCommand command = new FbCommand(query0, con);
 
                         // Objeto para leer los datos obtenidos
@@ -505,7 +592,7 @@ namespace FireBird
                         oficial_empacador = Cb_Empacador.Text;
                         oficial_bultos = int.Parse(TxtBultos.Text);
                         // Iterar sobre los registros y mostrar los valores
-                        while (reader0.Read())
+                        if (reader0.Read())
                         {
                             // Acceder a los valores de cada columna por su índice o nombre
                             string columna1 = reader0.GetString(0);
@@ -524,7 +611,6 @@ namespace FireBird
                                 oficial_factura = fact.Remove(2, 1);
                                 columnaciudad = direccion;
                                 encontrado = true;
-                                break;
                             }
                         }
                         if (encontrado == false)
@@ -534,26 +620,46 @@ namespace FireBird
                         }
 
                         reader0.Close();
-                        string query11 = "SELECT * FROM DIRS_CLIENTES ORDER BY CLIENTE_ID ASC";
-                        FbCommand command11 = new FbCommand(query11, con);
-                        FbDataReader reader11 = command11.ExecuteReader();
-                        // Iterar sobre los registros y mostrar los valores
-                        while (reader11.Read())
+                        if(columnaciudad != string.Empty)
                         {
-                            string columna11 = reader11.GetString(0);
-                            string ruta2 = reader11.GetString(25);
-                            if (columna11 == columnaciudad)
+                            string query11 = "SELECT * FROM DIRS_CLIENTES WHERE DIR_CLI_ID = '"+columnaciudad+"';";
+                            FbCommand command11 = new FbCommand(query11, con);
+                            FbDataReader reader11 = command11.ExecuteReader();
+                            // Iterar sobre los registros y mostrar los valores
+                            string ruta2 = "";
+                            if (reader11.Read())
                             {
+                                ruta2 = reader11.GetString(25);
                                 columnadescripcion = ruta2;
-                                break;
-                            }
-                        }
 
-                        reader11.Close();
+                            }
+                            else
+                            {
+                                columnadescripcion = "Sin Dirección";
+                            }
+                            reader11.Close();
+
+                        }
+                        else
+                        {
+                            string query11 = "SELECT * FROM DIRS_CLIENTES WHERE CLIENTE_ID = '" + columnacliente + "' AND NOMBRE_CONSIG = 'Dirección principal';";
+                            FbCommand command11 = new FbCommand(query11, con);
+                            FbDataReader reader11 = command11.ExecuteReader();
+                            // Iterar sobre los registros y mostrar los valores
+                            string ruta2 = "";
+                            if (reader11.Read())
+                            {
+                                ruta2 = reader11.GetString(25);
+                                columnadescripcion = ruta2;
+                                columnaciudad = reader11.GetString(0);
+                            }
+                            reader11.Close();
+                        }
                     }
 
                     else
                     {
+
                         string query = "SELECT * FROM DOCTOS_VE WHERE FOLIO = '" + TxtFolio.Text + "' AND ESTATUS != 'C' AND TIPO_DOCTO != 'P';";
                         FbCommand command = new FbCommand(query, con);
 
@@ -613,6 +719,7 @@ namespace FireBird
                         }
                         reader6.Close();
                     }
+
                     //string query2 = "SELECT * FROM VIAS_EMBARQUE ORDER BY VIA_EMBARQUE_ID ASC";
                     string query2 = "SELECT * FROM VIAS_EMBARQUE WHERE VIA_EMBARQUE_ID = '" + columnadescripcion + "'";
                     FbCommand command2 = new FbCommand(query2, con);
@@ -685,7 +792,10 @@ namespace FireBird
                     {
                         oficial_poblacion = "CIUDAD NO ASIGNADA";
                     }
-                    Validar();
+                    if (Buscar_Folio[1] != 'L' && Buscar_Folio[1] != 'C' && Buscar_Folio[0] != 'A' && Buscar_Folio[0] != 'B' && Buscar_Folio[0] != 'C' && Buscar_Folio[0] != 'D' && Buscar_Folio[0] != 'E' && Buscar_Folio[0] != 'F' && Buscar_Folio[0] != 'G' && Buscar_Folio[0] != 'H' && Buscar_Folio[0] != 'U')
+                    {
+                        Validar();
+                    }
 
                 }
                 catch (Exception ex)
@@ -702,6 +812,7 @@ namespace FireBird
                 finally
                 {
                     con.Close();
+                    GlobalSettings.Instance.Direccion = "D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb";
                 }
                 /*
                 void Codigo_Barras()
@@ -740,7 +851,7 @@ namespace FireBird
         }
         public void Validar()
         {
-            FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+            FbConnection con = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
             try
             {
                 con.Open();
@@ -973,11 +1084,6 @@ namespace FireBird
             }
         }
 
-        private void FlowLayoutPanel1_MouseUp(object sender, MouseEventArgs e)
-        {
-            isDragging = false;
-        }
-
         private void BtnImprimirCenefa_Click(object sender, EventArgs e)
         {
             if (TxtCodigo.Text != string.Empty)
@@ -987,7 +1093,7 @@ namespace FireBird
 
                     if (TxtCodigo.Text.Length > 6)
                     {
-                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        FbConnection con = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
                         try
                         {
                             Codigo = TxtCodigo.Text;
@@ -1091,7 +1197,7 @@ namespace FireBird
                     } // CODIGO DE BARRAS
                     else
                     {
-                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        FbConnection con = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
                         try
                         {
                             // Crear un nuevo hilo y asignarle un método que se ejecutará en paralelo
@@ -1188,7 +1294,7 @@ namespace FireBird
                             MessageBox.Show("Orden Incorrecto", "¡Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
-                        FbConnection con = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+                        FbConnection con = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
                         try
                         {
                             con.Open();
@@ -1267,7 +1373,7 @@ namespace FireBird
         }
         public void Query2()
         {
-            FbConnection con2 = new FbConnection("User=SYSDBA;" + "Password=C0r1b423;" + "Database=D:\\Microsip datos\\PAPELERIA CORIBA CORNEJO.fdb;" + "DataSource=192.168.0.11;" + "Port=3050;" + "Dialect=3;" + "Charset=UTF8;");
+            FbConnection con2 = new FbConnection("User=" + GlobalSettings.Instance.User + ";" + "Password=" + GlobalSettings.Instance.Pw + ";" + "Database=" + GlobalSettings.Instance.Direccion + ";" + "DataSource=" + GlobalSettings.Instance.Ip + ";" + "Port=" + GlobalSettings.Instance.Puerto + ";" + "Dialect=3;" + "Charset=UTF8;");
             try
             {
                 con2.Open();
@@ -1629,6 +1735,14 @@ namespace FireBird
             TxtFolio.Focus();
             TxtFolio.Text = string.Empty;
             TxtFolio.Text = "PC";
+            TxtFolio.SelectionStart = 2;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            TxtFolio.Focus();
+            TxtFolio.Text = string.Empty;
+            TxtFolio.Text = "PL";
             TxtFolio.SelectionStart = 2;
         }
     }

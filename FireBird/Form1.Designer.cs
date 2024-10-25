@@ -108,6 +108,7 @@
             printDocument3 = new System.Drawing.Printing.PrintDocument();
             Print_ML = new System.Drawing.Printing.PrintDocument();
             Print_Fragil = new System.Drawing.Printing.PrintDocument();
+            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)Imagen_Codigo).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -551,6 +552,7 @@
             // tabPage1
             // 
             tabPage1.BackColor = Color.DimGray;
+            tabPage1.Controls.Add(button1);
             tabPage1.Controls.Add(PC);
             tabPage1.Controls.Add(PF);
             tabPage1.Controls.Add(Img_med);
@@ -667,7 +669,7 @@
             label14.Name = "label14";
             label14.Size = new Size(85, 15);
             label14.TabIndex = 36;
-            label14.Text = "Versión 1.0.10";
+            label14.Text = "Versión 1.0.12";
             // 
             // label10
             // 
@@ -1070,7 +1072,7 @@
             FlowLayoutPanel1.TabIndex = 36;
             FlowLayoutPanel1.MouseDown += FlowLayoutPanel1_MouseDown;
             FlowLayoutPanel1.MouseMove += FlowLayoutPanel1_MouseMove;
-            FlowLayoutPanel1.MouseUp += FlowLayoutPanel1_MouseUp;
+            //FlowLayoutPanel1.MouseUp += FlowLayoutPanel1_MouseUp;
             // 
             // Pb_Cerrar
             // 
@@ -1133,6 +1135,22 @@
             // Print_Fragil
             // 
             Print_Fragil.PrintPage += Print_Fragil_PrintPage;
+            // 
+            // button1
+            // 
+            button1.Anchor = AnchorStyles.Top;
+            button1.BackColor = Color.DarkOrange;
+            button1.Cursor = Cursors.Hand;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.Font = new Font("Verdana", 14F, FontStyle.Bold, GraphicsUnit.Point);
+            button1.ForeColor = Color.Black;
+            button1.Location = new Point(21, 287);
+            button1.Name = "button1";
+            button1.Size = new Size(92, 33);
+            button1.TabIndex = 42;
+            button1.Text = "PL";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
             // 
             // Form1
             // 
@@ -1270,5 +1288,6 @@
         private Button PF;
         private Button PC;
         private PictureBox pictureBox14;
+        private Button button1;
     }
 }
